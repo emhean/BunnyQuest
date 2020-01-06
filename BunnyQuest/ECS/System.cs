@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using BunnyQuest.ECS.Components;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,8 @@ namespace BunnyQuest.ECS
 {
     class System
     {
+        List<Entity> entities;
+
         static int uuid_count;
         static int GetAvailableUUID()
         {
@@ -17,9 +20,6 @@ namespace BunnyQuest.ECS
             uuid_count += 1;
             return foo;
         }
-
-
-        List<Entity> entities;
 
         public System()
         {
@@ -57,7 +57,7 @@ namespace BunnyQuest.ECS
         {
             for (int i = 0; i < entities.Count; ++i)
             {
-                for(int j = 0; j < entities[i].components.Count; ++j)
+                for (int j = 0; j < entities[i].components.Count; ++j)
                 {
                     if (entities[i].components[j].IsRendered)
                     {
@@ -66,5 +66,32 @@ namespace BunnyQuest.ECS
                 }
             }
         }
+
+        public void UpdateCollision()
+        {
+
+            for (int i = 0; i < entities.Count; i++)
+            {
+                var c1 = entities[i].GetComponent<CmpCollider>();
+
+                if (c1 != null)
+                {
+                    for (int j = i; j < entities.Count - i; j++)
+                    {
+                        var c2 = entities[j].GetComponent<CmpCollider>();
+
+                        if (c2 != null)
+                        {
+                            
+                        }
+                    }
+                }
+
+
+
+
+            }
+        }
+
     }
 }

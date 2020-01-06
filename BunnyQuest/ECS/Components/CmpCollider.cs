@@ -9,7 +9,7 @@ namespace BunnyQuest.ECS.Components
 {
     class CmpCollider : Component
     {
-        Rectangle rect;
+        public Rectangle rect;
 
 
 
