@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,10 @@ namespace BunnyQuest.ECS
     {
         public readonly int UUID;
         public List<Component> components;
+        public Vector2 pos;
+        public Vector2 size;
+
+
 
         public Entity(int UUID)
         {

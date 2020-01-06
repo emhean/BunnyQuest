@@ -8,5 +8,8 @@ namespace BunnyQuest.ECS.Components
 {
     class CmpCollider : Component
     {
+        public CmpCollider(Entity owner) : base(owner)
+        {
+        }
     }
 }
