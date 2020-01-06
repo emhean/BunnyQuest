@@ -8,5 +8,11 @@ namespace BunnyQuest.ECS
 {
     class Entity
     {
+        private int UUID;
+
+        public Entity(int UUID)
+        {
+            
+        }
     }
 }
