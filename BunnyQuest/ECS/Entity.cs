@@ -9,14 +9,12 @@ namespace BunnyQuest.ECS
     class Entity
     {
         private int UUID;
+        public List<Component> components;
 
-
-        public Entity(int assigned_UUID)
+        public Entity(int UUID)
         {
-            UUID = assigned_UUID;
+            this.UUID = UUID;
+            this.components = new List<Component>();
         }
-        
-
-   
     }
 }
