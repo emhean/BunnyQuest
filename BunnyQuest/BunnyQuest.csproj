@@ -43,6 +43,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ECS\Component.cs" />
+    <Compile Include="ECS\Components\CmpAnim.cs" />
+    <Compile Include="ECS\Components\CmpCollider.cs" />
     <Compile Include="ECS\Entity.cs" />
     <Compile Include="ECS\System.cs" />
     <Compile Include="Main.cs" />
