@@ -10,8 +10,6 @@ namespace BunnyQuest.ECS
 {
     class System
     {
-        List<Entity> entities;
-
         static int uuid_count;
         static int GetAvailableUUID()
         {
@@ -19,6 +17,9 @@ namespace BunnyQuest.ECS
             uuid_count += 1;
             return foo;
         }
+
+
+        List<Entity> entities;
 
         public System()
         {

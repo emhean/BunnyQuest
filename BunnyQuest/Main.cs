@@ -68,6 +68,12 @@ namespace BunnyQuest
                 Exit();
 
 
+            for(int x = 0; x < 10; ++x)
+            {
+                for(int i = x; i < 10 - x; ++i)
+                {
+                }
+            }
 
 
             base.Update(gameTime);
