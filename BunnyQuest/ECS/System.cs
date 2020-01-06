@@ -14,13 +14,22 @@ namespace BunnyQuest.ECS
 
         public System()
         {
+            this.entities = new List<Entity>();
         }
 
         public void Update(GameTime gameTime)
         {
-            for(int i = 0; i < entities.Count; ++i)
-            {
+            float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
+            for (int i = 0; i < entities.Count; ++i)
+            {
+                for (int j = 0; j < entities[i].components.Count; ++j)
+                {
+                    if (entities[i].components[j].IsUpdated)
+                    {
+                        entities[i].components[j].Update(dt);
+                    }
+                }
             }
         }
 
@@ -28,7 +37,13 @@ namespace BunnyQuest.ECS
         {
             for (int i = 0; i < entities.Count; ++i)
             {
-                entities[i].Render(spriteBatch);
+                for(int j = 0; j < entities[i].components.Count; ++j)
+                {
+                    if (entities[i].components[j].IsRendered)
+                    {
+                        entities[i].components[j].Render(spriteBatch);
+                    }
+                }
             }
         }
     }
