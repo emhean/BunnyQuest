@@ -12,9 +12,28 @@ namespace BunnyQuest.ECS
     {
         List<Entity> entities;
 
+        static int uuid_count;
+        static int GetAvailableUUID()
+        {
+            int foo = uuid_count;
+            uuid_count += 1;
+            return foo;
+        }
+
         public System()
         {
             this.entities = new List<Entity>();
+        }
+
+        public Entity CreateEntity()
+        {
+            var ent = new Entity(GetAvailableUUID());
+            return ent;
+        }
+
+        public void AddEntity(Entity entity)
+        {
+            this.entities.Add(entity);
         }
 
         public void Update(GameTime gameTime)

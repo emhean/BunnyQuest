@@ -8,7 +8,7 @@ namespace BunnyQuest.ECS
 {
     class Entity
     {
-        private int UUID;
+        public readonly int UUID;
         public List<Component> components;
 
         public Entity(int UUID)
@@ -16,5 +16,6 @@ namespace BunnyQuest.ECS
             this.UUID = UUID;
             this.components = new List<Component>();
         }
+
     }
 }
