@@ -10,9 +10,13 @@ namespace BunnyQuest.ECS
     {
         private int UUID;
 
-        public Entity(int UUID)
+
+        public Entity(int assigned_UUID)
         {
-            
+            UUID = assigned_UUID;
         }
+        
+
+   
     }
 }
