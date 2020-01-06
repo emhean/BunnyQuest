@@ -42,7 +42,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="ECS\CompPos.cs" />
+    <Compile Include="ECS\Component.cs" />
     <Compile Include="ECS\Entity.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Program.cs" />
