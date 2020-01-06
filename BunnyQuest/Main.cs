@@ -13,7 +13,11 @@ namespace BunnyQuest
         SpriteBatch spriteBatch;
 
         KeyboardState keyboardState;
-        
+
+
+        Camera.Camera2DControlled camera;
+        ECS.System system;
+
 
         public Main()
         {
@@ -21,39 +25,27 @@ namespace BunnyQuest
             Content.RootDirectory = "Content";
         }
 
-        /// <summary>
-        /// Allows the game to perform any initialization it needs to before starting to run.
-        /// This is where it can query for any required services and load any non-graphic
-        /// related content.  Calling base.Initialize will enumerate through any components
-        /// and initialize them as well.
-        /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
+            camera = new Camera.Camera2DControlled();
+            camera.Zoom = 2;
+
+            system = new ECS.System();
 
             base.Initialize();
         }
 
-        /// <summary>
-        /// LoadContent will be called once per game and is the place to load
-        /// all of your content.
-        /// </summary>
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            // TODO: use this.Content to load your game content here
+
+            system.AddEntity(new Entities.Bunny(0, this.Content));
         }
 
-        /// <summary>
-        /// UnloadContent will be called once per game and is the place to unload
-        /// game-specific content.
-        /// </summary>
-        protected override void UnloadContent()
-        {
-            // TODO: Unload any non ContentManager content here
-        }
+
+        protected override void UnloadContent() { }
 
         /// <summary>
         /// Allows the game to run logic such as updating the world,
@@ -62,18 +54,34 @@ namespace BunnyQuest
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            // TODO: Add your update logic here
-            keyboardState = Keyboard.GetState();
+            keyboardState = Keyboard.GetState(); // Get state of keyboard (pressed button etc)
             if (keyboardState.IsKeyDown(Keys.Escape))
                 Exit();
 
 
-            for(int x = 0; x < 10; ++x)
+            if(keyboardState.IsKeyDown(Keys.W)) // Up
             {
-                for(int i = x; i < 10 - x; ++i)
-                {
-                }
+                
             }
+            else if (keyboardState.IsKeyDown(Keys.S)) // Down
+            {
+
+            }
+
+            if (keyboardState.IsKeyDown(Keys.A)) // Left
+            {
+
+            }
+            else if (keyboardState.IsKeyDown(Keys.D)) // Right
+            {
+
+            }
+
+
+            // Update camera before updating the ECS
+            camera.UpdateControls((float)gameTime.ElapsedGameTime.TotalSeconds);
+            // Update the ECS
+            system.Update(gameTime);
 
 
             base.Update(gameTime);
@@ -86,12 +94,10 @@ namespace BunnyQuest
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
+            spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.PointClamp, null, null, null, camera.GetTransformation(this.GraphicsDevice));
 
-
-            spriteBatch.Begin();
-            // TODO: Add your drawing code here
-
-
+            // Render the ECS world
+            system.Render(spriteBatch);
 
             spriteBatch.End();
 

@@ -42,11 +42,14 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Camera\Camera2D.cs" />
+    <Compile Include="Camera\Camera2DControlled.cs" />
     <Compile Include="ECS\Component.cs" />
     <Compile Include="ECS\Components\CmpAnim.cs" />
     <Compile Include="ECS\Components\CmpCollider.cs" />
     <Compile Include="ECS\Entity.cs" />
     <Compile Include="ECS\System.cs" />
+    <Compile Include="Entities\Bunny.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

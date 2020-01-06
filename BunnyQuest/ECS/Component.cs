@@ -17,8 +17,8 @@ namespace BunnyQuest.ECS
             this.entity = owner;
         }
 
-        public bool IsUpdated;
-        public bool IsRendered;
+        public bool IsUpdated = true;
+        public bool IsRendered = true;
 
 
         /// <summary>

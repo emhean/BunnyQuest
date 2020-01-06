@@ -69,7 +69,6 @@ namespace BunnyQuest.ECS
 
         public void UpdateCollision()
         {
-
             for (int i = 0; i < entities.Count; i++)
             {
                 var c1 = entities[i].GetComponent<CmpCollider>();
