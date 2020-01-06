@@ -19,13 +19,13 @@ namespace BunnyQuest.ECS
         /// <summary>
         /// Gets component of type.
         /// </summary>
-        public Component GetComponent<T>()
+        public T GetComponent<T>() where T : Component
         {
             for(int i = 0; i < components.Count; ++i)
             {
                 if(components[i] is T)
                 {
-                    return components[i];
+                    return (T)components[i];
                 }
             }
 
