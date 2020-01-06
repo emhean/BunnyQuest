@@ -51,6 +51,8 @@ namespace BunnyQuest.ECS
                     }
                 }
             }
+
+            UpdateCollision();
         }
 
         public void Render(SpriteBatch spriteBatch)
@@ -81,31 +83,46 @@ namespace BunnyQuest.ECS
 
                         if (c2 != null)
                         {
-                            float Ax1 = c1.rect.X;
-                            float Ax2 = Ax1 + c1.rect.Width;
-                            float Bx1 = c2.rect.X;
-                            float Bx2 = Bx1 + c2.rect.Width;
+                            int Ax1 = c1.rect.X;
+                            int Ax2 = Ax1 + c1.rect.Width;
+                            int Bx1 = c2.rect.X;
+                            int Bx2 = Bx1 + c2.rect.Width;
 
                             if( ( Ax1 < Bx1 && Bx1 < Ax2 )
                                 || (Ax1 < Bx2 && Bx2 < Ax2))
                             {
-                                float Ay1 = c1.rect.Y;
-                                float Ay2 = Ay1 + c1.rect.Height;
-                                float By1 = c2.rect.Y;
-                                float By2 = By1 + c2.rect.Height;
+
+                                int Ay1 = c1.rect.Y;
+                                int Ay2 = Ay1 + c1.rect.Height;
+                                int By1 = c2.rect.Y;
+                                int By2 = By1 + c2.rect.Height;
 
                                 if ((Ay1 < By1 && By1 <Ay2)
                                 || (Ay1 < By2 && By2 < Ay2))
                                 {
-                                    if (Math.Abs(Bx1 - Ax1) < Math.Abs(Bx1 - Ax2))
-                                        Ax2 = Bx1;
-                                    else
-                                        Ax1 = Bx2;
 
-                                    if (Math.Abs(By1 - Ay1) < Math.Abs(By1 - Ay2))
-                                        Ay1 = By2;
+
+                                    if (Math.Abs(Bx1 - Ax1) <= Math.Abs(Bx1 - Ax2))
+                                    {
+                                        Console.WriteLine("1");
+                                        c1.SetPosition(Bx1 - c1.rect.Width, c1.rect.Y);
+                                    }
                                     else
-                                        Ay2 = By1;
+                                    {
+                                        Console.WriteLine("2");
+                                        c1.SetPosition(Bx2, c1.rect.Y);
+                                    }
+
+                                    if (Math.Abs(By1 - Ay1) <= Math.Abs(By1 - Ay2))
+                                    {
+                                        Console.WriteLine("3");
+                                        c1.SetPosition(c1.rect.X, By2 - c1.rect.Height);
+                                    }
+                                    else
+                                    {
+                                        Console.WriteLine("4");
+                                        c1.SetPosition(c1.rect.X, By1);
+                                    }
                                 }
                             }
                         }

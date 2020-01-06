@@ -16,6 +16,7 @@ namespace BunnyQuest
 
 
         Camera.Camera2DControlled camera;
+        ECS.Entity player;
         ECS.System system;
 
 
@@ -41,7 +42,16 @@ namespace BunnyQuest
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
 
-            system.AddEntity(new Entities.Bunny(0, this.Content));
+            player = new Entities.Bunny(0, this.Content);
+            player.size = new Vector2(32, 32);
+            system.AddEntity(player);
+
+
+            var enemy = new Entities.Bunny(11, this.Content);
+            enemy.pos = new Vector2(100, 100);
+            enemy.size = new Vector2(32, 32);
+
+            system.AddEntity(enemy);
         }
 
 
@@ -61,20 +71,20 @@ namespace BunnyQuest
 
             if(keyboardState.IsKeyDown(Keys.W)) // Up
             {
-                
+                player.pos.Y -= 1;
             }
             else if (keyboardState.IsKeyDown(Keys.S)) // Down
             {
-
+                player.pos.Y += 1;
             }
 
             if (keyboardState.IsKeyDown(Keys.A)) // Left
             {
-
+                player.pos.X -= 1;
             }
             else if (keyboardState.IsKeyDown(Keys.D)) // Right
             {
-
+                player.pos.X += 1;
             }
 
 

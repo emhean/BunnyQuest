@@ -19,5 +19,15 @@ namespace BunnyQuest.ECS.Components
 
             base.Update(delta);
         }
+
+        public void SetPosition(int x, int y)
+        {
+            entity.pos.X = x;
+            entity.pos.Y = y;
+
+            rect.X = x;
+            rect.Y = y;
+
+        }
     }
 }
