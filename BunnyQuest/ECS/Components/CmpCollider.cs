@@ -11,8 +11,6 @@ namespace BunnyQuest.ECS.Components
     {
         Rectangle rect;
 
-
-
         public CmpCollider(Entity owner) : base(owner)
         {
         }
