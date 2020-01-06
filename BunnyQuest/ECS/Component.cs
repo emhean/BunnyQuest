@@ -24,14 +24,14 @@ namespace BunnyQuest.ECS
         /// <summary>
         /// Updates the component.
         /// </summary>
-        public void Update(float delta)
+        public virtual void Update(float delta)
         {
         }
 
         /// <summary>
         /// Renders the component.
         /// </summary>
-        public void Render(SpriteBatch spriteBatch)
+        public virtual void Render(SpriteBatch spriteBatch)
         {
         }
     }
