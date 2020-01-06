@@ -8,5 +8,8 @@ namespace BunnyQuest.ECS
 {
     class Entity
     {
+        List<Component> components;
+
+
     }
 }
