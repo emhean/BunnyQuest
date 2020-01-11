@@ -35,7 +35,7 @@ namespace BunnyQuest
 
             system = new ECS.System();
 
-            map = new Map(Content);
+            map = new Map(Content, 8);
 
             base.Initialize();
         }
