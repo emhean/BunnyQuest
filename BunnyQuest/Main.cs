@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using BunnyQuest.World;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
@@ -19,6 +20,7 @@ namespace BunnyQuest
         ECS.Entity player;
         ECS.System system;
 
+        Map map;
 
         public Main()
         {
@@ -32,6 +34,8 @@ namespace BunnyQuest
             camera.Zoom = 2;
 
             system = new ECS.System();
+
+            map = new Map(Content, 8);
 
             base.Initialize();
         }
@@ -104,17 +108,22 @@ namespace BunnyQuest
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Black);
             spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.PointClamp, null, null, null, camera.GetTransformation(this.GraphicsDevice));
+
+            for (int i = 0; i < map.mapWidth; ++i)
+            {
+                for (int j = 0; j < map.mapHeight; ++j)
+                {
+                    var t = map.tileGrid[i, j];
+                    spriteBatch.Draw(map.tileSheet.tex, t.rect, map.tileSheet.sourceRects[t.tileid], Color.White);
+                }
+            }
 
             // Render the ECS world
             system.Render(spriteBatch);
 
-
-         
-
             spriteBatch.End();
-
             base.Draw(gameTime);
         }
     }

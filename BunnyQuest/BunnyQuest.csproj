@@ -58,6 +58,7 @@
     <Compile Include="World\Map.cs" />
     <Compile Include="World\Tile.cs" />
     <Compile Include="World\TileGrid.cs" />
+    <Compile Include="World\TileSheet.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework">

@@ -1,9 +1,8 @@
-﻿using Microsoft.Xna.Framework.Audio;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BunnyQuest.World
 {
@@ -12,8 +11,54 @@ namespace BunnyQuest.World
         /// <summary>
         /// A grid of Tiles. TileGrid inherits from the generic Grid class.
         /// </summary>
-        TileGrid tileGrid;
+        public TileGrid tileGrid;
+        public TileSheet tileSheet;
 
-        SoundEffectInstance bgm;
+        public int mapWidth;
+        public int mapHeight => mapWidth; // cus itsa s'queer
+        public SoundEffectInstance bgm;
+
+        public Map(ContentManager content, int size, bool randomize = false)
+        {
+            this.mapWidth = size; // To keep the map size for logic
+            this.tileGrid = new TileGrid(size);
+            this.tileSheet = new TileSheet(content.Load<Texture2D>("tilesets/ts_nature"), 32);
+
+            if (randomize)
+            {
+                Random rnd = new Random(); // Init random
+                for (int x = 0; x < mapWidth; x++)
+                {
+                    for (int y = 0; y < mapHeight; y++)
+                    {
+                        Rectangle tileRect = new Rectangle(x * 32, y * 32, 32, 32);
+                        tileGrid[y, x] = new Tile(rnd.Next(0, tileSheet.sourceRects.Length), tileRect);
+                    }
+                }
+            }
+            else // Do not randomize map.
+            {
+                int[][] tiles = new int[][]
+                {
+                    new int[] { 0, 0, 0, 0, 0, 0, 0, 0 },
+                    new int[] {0, 0, 0, 0, 0, 0, 0, 0, },
+                    new int[] {0, 0, 0, 1, 1, 0, 0, 0, },
+                    new int[] {0, 0, 1, 1, 1, 1, 0, 0, },
+                    new int[] {0, 0, 1, 1, 1, 0, 0, 0, },
+                    new int[] {0, 0, 0, 1, 1, 0, 0, 0, },
+                    new int[] {0, 0, 0, 0, 0, 0, 0, 0, },
+                    new int[] {0, 0, 0, 0, 0, 0, 0, 0, }
+                };
+
+                for (int x = 0; x < mapWidth; x++)
+                {
+                    for (int y = 0; y < mapHeight; y++)
+                    {
+                        Rectangle tileRect = new Rectangle(x * 32, y * 32, 32, 32);
+                        tileGrid[y, x] = new Tile(tiles[x][y], tileRect);
+                    }
+                }
+            }
+        }
     }
 }
