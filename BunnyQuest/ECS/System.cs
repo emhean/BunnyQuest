@@ -88,21 +88,15 @@ namespace BunnyQuest.ECS
                             int Bx1 = c2.rect.X;
                             int Bx2 = Bx1 + c2.rect.Width;
 
-                            if( ( Ax1 < Bx1 && Bx1 < Ax2 )
+                            int Ay1 = c1.rect.Y;
+                            int Ay2 = Ay1 + c1.rect.Height;
+                            int By1 = c2.rect.Y;
+                            int By2 = By1 + c2.rect.Height;
+
+                            if(( Ax1 < Bx1 && Bx1 < Ax2 )
                                 || (Ax1 < Bx2 && Bx2 < Ax2))
-                            {
-
-                                int Ay1 = c1.rect.Y;
-                                int Ay2 = Ay1 + c1.rect.Height;
-                                int By1 = c2.rect.Y;
-                                int By2 = By1 + c2.rect.Height;
-
-                                if ((Ay1 < By1 && By1 <Ay2)
-                                || (Ay1 < By2 && By2 < Ay2))
                                 {
-
-
-                                    if (Math.Abs(Bx1 - Ax1) <= Math.Abs(Bx1 - Ax2))
+                                 if (Math.Abs(Bx1 - Ax1) >= Math.Abs(Bx1 - Ax2))
                                     {
                                         Console.WriteLine("1");
                                         c1.SetPosition(Bx1 - c1.rect.Width, c1.rect.Y);
@@ -112,8 +106,12 @@ namespace BunnyQuest.ECS
                                         Console.WriteLine("2");
                                         c1.SetPosition(Bx2, c1.rect.Y);
                                     }
+                                }
 
-                                    if (Math.Abs(By1 - Ay1) <= Math.Abs(By1 - Ay2))
+                            if ((Ay1 < By1 && By1 <Ay2)
+                                || (Ay1 < By2 && By2 < Ay2))
+                                {
+                                    if (Math.Abs(By1 - Ay1) >= Math.Abs(By1 - Ay2))
                                     {
                                         Console.WriteLine("3");
                                         c1.SetPosition(c1.rect.X, By2 - c1.rect.Height);
@@ -124,7 +122,7 @@ namespace BunnyQuest.ECS
                                         c1.SetPosition(c1.rect.X, By1);
                                     }
                                 }
-                            }
+                            
                         }
                     }
                 }
