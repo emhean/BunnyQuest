@@ -41,7 +41,6 @@ namespace BunnyQuest.ECS.Components
 
             rect.X = x;
             rect.Y = y;
-
         }
     }
 }

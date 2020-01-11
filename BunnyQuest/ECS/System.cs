@@ -104,12 +104,9 @@ namespace BunnyQuest.ECS
                                     {
                                         if (Math.Abs(Bx1 - Ax1) >= Math.Abs(Bx1 - Ax2))
                                         {
-
                                             Console.WriteLine("1");
                                             c1.SetPosition(c1.rect.X, By2 - c1.rect.Height);
                                             c1.SetPosition(Bx1 - c1.rect.Width, c1.rect.Y);
-
-
                                         }
                                         else
                                         {
