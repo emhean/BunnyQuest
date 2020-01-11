@@ -42,15 +42,17 @@ namespace BunnyQuest
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
 
-            player = new Entities.Bunny(0, this.Content);
-            player.size = new Vector2(32, 32);
+            player = new Entities.Player(0, this.Content)
+            {
+                size = new Vector2(32, 32)
+            };
             system.AddEntity(player);
 
-
-            var enemy = new Entities.Bunny(11, this.Content);
-            enemy.pos = new Vector2(96, 32);
-            enemy.size = new Vector2(32, 32);
-
+            var enemy = new Entities.EvilBunny(11, this.Content)
+            {
+                pos = new Vector2(96, 32),
+                size = new Vector2(32, 32)
+            };
             system.AddEntity(enemy);
         }
 

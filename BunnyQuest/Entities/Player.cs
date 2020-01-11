@@ -6,13 +6,13 @@ using Microsoft.Xna.Framework;
 
 namespace BunnyQuest.Entities
 {
-    class EvilBunny : Entity
+    class Player : Entity
     {
-        public EvilBunny(int UUID, ContentManager content) : base(UUID)
+        public Player(int UUID, ContentManager content) : base(UUID)
         {
-            this.AddComponent(new CmpCollider(this,  content.Load<Texture2D>("etc/pixel")));
+            this.AddComponent(new CmpCollider(this, content.Load<Texture2D>("etc/pixel")));
 
-            var anim = new CmpAnim(this, content.Load<Texture2D>("spritesheets/evilbunny"));
+            var anim = new CmpAnim(this, content.Load<Texture2D>("spritesheets/bunny"));
             this.AddComponent(anim);
 
             anim.sprites = new Rectangle[]
