@@ -48,7 +48,7 @@ namespace BunnyQuest
 
 
             var enemy = new Entities.Bunny(11, this.Content);
-            enemy.pos = new Vector2(100, 100);
+            enemy.pos = new Vector2(96, 32);
             enemy.size = new Vector2(32, 32);
 
             system.AddEntity(enemy);
@@ -87,12 +87,11 @@ namespace BunnyQuest
                 player.pos.X += 1;
             }
 
-
+            camera.Position = player.pos + player.size / 2;
             // Update camera before updating the ECS
             camera.UpdateControls((float)gameTime.ElapsedGameTime.TotalSeconds);
             // Update the ECS
             system.Update(gameTime);
-
 
             base.Update(gameTime);
         }
@@ -108,6 +107,9 @@ namespace BunnyQuest
 
             // Render the ECS world
             system.Render(spriteBatch);
+
+
+         
 
             spriteBatch.End();
 

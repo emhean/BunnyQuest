@@ -13,7 +13,13 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin tilesets/ts_nature.png
+#begin bgm/snowy.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:bgm/snowy.wav
+
+#begin etc/pixel.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -23,7 +29,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:tilesets/ts_nature.png
+/build:etc/pixel.png
 
 #begin spritesheets/bunny.png
 /importer:TextureImporter
@@ -37,12 +43,6 @@
 /processorParam:TextureFormat=Color
 /build:spritesheets/bunny.png
 
-#begin bgm/snowy.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:bgm/snowy.wav
-
 #begin spritesheets/evilbunny.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -54,4 +54,16 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:spritesheets/evilbunny.png
+
+#begin tilesets/ts_nature.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:tilesets/ts_nature.png
 

@@ -10,7 +10,7 @@ namespace BunnyQuest.Entities
     {
         public Bunny(int UUID, ContentManager content) : base(UUID)
         {
-            this.AddComponent(new CmpCollider(this));
+            this.AddComponent(new CmpCollider(this,  content.Load<Texture2D>("etc/pixel")));
 
 
             var anim = new CmpAnim(this, content.Load<Texture2D>("spritesheets/bunny"));

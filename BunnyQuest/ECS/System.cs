@@ -74,13 +74,14 @@ namespace BunnyQuest.ECS
             for (int i = 0; i < entities.Count; i++)
             {
                 var c1 = entities[i].GetComponent<CmpCollider>();
-
                 if (c1 != null)
                 {
-                    for (int j = i; j < entities.Count - i; j++)
+                    for (int j = 0; j < entities.Count; ++j)//int j = i; j < entities.Count - i; j++)
                     {
-                        var c2 = entities[j].GetComponent<CmpCollider>();
+                        if (i == j)
+                            continue;
 
+                        var c2 = entities[j].GetComponent<CmpCollider>();
                         if (c2 != null)
                         {
                             int Ax1 = c1.rect.X;
@@ -93,36 +94,36 @@ namespace BunnyQuest.ECS
                             int By1 = c2.rect.Y;
                             int By2 = By1 + c2.rect.Height;
 
-                            if(( Ax1 < Bx1 && Bx1 < Ax2 )
+                            if ((Ax1 < Bx1 && Bx1 < Ax2)
                                 || (Ax1 < Bx2 && Bx2 < Ax2))
+                            {
+                                if (Math.Abs(Bx1 - Ax1) >= Math.Abs(Bx1 - Ax2))
                                 {
-                                 if (Math.Abs(Bx1 - Ax1) >= Math.Abs(Bx1 - Ax2))
-                                    {
-                                        Console.WriteLine("1");
-                                        c1.SetPosition(Bx1 - c1.rect.Width, c1.rect.Y);
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine("2");
-                                        c1.SetPosition(Bx2, c1.rect.Y);
-                                    }
+                                    Console.WriteLine("1");
+                                    c1.SetPosition(Bx1 - c1.rect.Width, c1.rect.Y);
                                 }
+                                else
+                                {
+                                    Console.WriteLine("2");
+                                    c1.SetPosition(Bx2, c1.rect.Y);
+                                }
+                            }
 
-                            if ((Ay1 < By1 && By1 <Ay2)
+                            if ((Ay1 < By1 && By1 < Ay2)
                                 || (Ay1 < By2 && By2 < Ay2))
+                            {
+                                if (Math.Abs(By1 - Ay1) >= Math.Abs(By1 - Ay2))
                                 {
-                                    if (Math.Abs(By1 - Ay1) >= Math.Abs(By1 - Ay2))
-                                    {
-                                        Console.WriteLine("3");
-                                        c1.SetPosition(c1.rect.X, By2 - c1.rect.Height);
-                                    }
-                                    else
-                                    {
-                                        Console.WriteLine("4");
-                                        c1.SetPosition(c1.rect.X, By1);
-                                    }
+                                    Console.WriteLine("3");
+                                    c1.SetPosition(c1.rect.X, By2 - c1.rect.Height);
                                 }
-                            
+                                else
+                                {
+                                    Console.WriteLine("4");
+                                    c1.SetPosition(c1.rect.X, By1);
+                                }
+                            }
+
                         }
                     }
                 }

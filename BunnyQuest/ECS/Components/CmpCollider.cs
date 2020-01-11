@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace BunnyQuest.ECS.Components
 {
@@ -6,8 +7,16 @@ namespace BunnyQuest.ECS.Components
     {
         public Rectangle rect;
 
+        Texture2D tex_px;
+        public bool Debug { get; set; } = true;
+
         public CmpCollider(Entity owner) : base(owner)
         {
+        }
+
+        public CmpCollider(Entity owner, Texture2D debug_texture) : base(owner)
+        {
+            this.tex_px = debug_texture;
         }
 
         public override void Update(float delta)
@@ -18,6 +27,11 @@ namespace BunnyQuest.ECS.Components
             rect.Height = (int)this.entity.size.Y;
 
             base.Update(delta);
+        }
+
+        public override void Render(SpriteBatch spriteBatch)
+        {
+            spriteBatch.Draw(tex_px, rect, Color.Red * 0.33f);
         }
 
         public void SetPosition(int x, int y)
