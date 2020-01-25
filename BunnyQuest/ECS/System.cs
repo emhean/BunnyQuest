@@ -52,6 +52,7 @@ namespace BunnyQuest.ECS
                 }
             }
 
+            UpdateWorldCollision();
             UpdateCollision();
         }
 
@@ -66,6 +67,20 @@ namespace BunnyQuest.ECS
                         entities[i].components[j].Render(spriteBatch);
                     }
                 }
+            }
+        }
+
+        public void UpdateWorldCollision()
+        {
+            for(int i = 0; i < entities.Count; ++i)
+            {
+                if (entities[i].pos.X < 0)
+                    entities[i].pos.X = 0;
+
+                if (entities[i].pos.Y < 0)
+                    entities[i].pos.Y = 0;
+
+
             }
         }
 

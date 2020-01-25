@@ -36,6 +36,11 @@ namespace BunnyQuest.ECS.Components
 
         public void SetPosition(int x, int y)
         {
+            if (x < 0)
+                x = 0;
+            if (y < 0)
+                y = 0;
+
             entity.pos.X = x;
             entity.pos.Y = y;
 
