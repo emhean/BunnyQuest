@@ -9,23 +9,23 @@ class MatrixFunktioner
 {
     public int[][] Matrix_transformer(int[][] matrix)
     {
-        var width = matrix.Length;
-        int height = matrix[0].Length;
-        int[][] new_matrix = new int[width][];
+        int height = matrix.Length;
+        int width = matrix[0].Length;
+        int[][] new_matrix = new int[height][];
 
         for (int w = 0; w < new_matrix.Length; w++)
-            for (int h = 0; h < height; h++)
+          //  for (int h = 0; h < height + 1; h++)
                 new_matrix[w] = new int[height];
 
 
         if (height == width)
         {
-            for (int x = width; x >= 0; x--)
+            for (int x = 0; x < width; x++)
             {
-                for (int y = height; y >= 0; y--)
+                for (int y = 0; y < height; y++)
                 {
 
-                    new_matrix[height - y][x] = matrix[x][y];
+                    new_matrix[height - 1 - y][x] = matrix[y][x];
                 }
             }
             return new_matrix;
