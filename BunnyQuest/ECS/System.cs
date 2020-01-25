@@ -52,6 +52,7 @@ namespace BunnyQuest.ECS
                 }
             }
 
+            UpdateWorldCollision(8 * 32, 8 * 32); // TODO: Fix this or implement method somewhere else?
             UpdateCollision();
         }
 
@@ -68,148 +69,74 @@ namespace BunnyQuest.ECS
                 }
             }
         }
-   
-          public void UpdateCollision()
-        { }
-//        {
-//            for (int i = 0; i < entities.Count; i++)
-//            {
-//                var c1 = entities[i].GetComponent<CmpCollider>();
-//                if (c1 != null)
-//                {
-//                    for (int j = 0; j < entities.Count; ++j)//int j = i; j < entities.Count - i; j++)
-//                    {
-//                        if (i == j)
-//                            continue;
 
-//                        var c2 = entities[j].GetComponent<CmpCollider>();
-//                        if (c2 != null)
-//                        {
-//                            //Creates variables for the pos of left and right sides of each hitbox
-//                            int Ax1 = c1.rect.X;
-//                            int Ax2 = Ax1 + c1.rect.Width;
-//                            int Bx1 = c2.rect.X;
-//                            int Bx2 = Bx1 + c2.rect.Width;
+        public void UpdateWorldCollision(int worldWidth, int worldHeight)
+        {
+            for (int i = 0; i < entities.Count; ++i)
+            {
+                if (entities[i].pos.X < 0)
+                    entities[i].pos.X = 0;
+                else if (entities[i].pos.X + entities[i].size.X > worldWidth)
+                    entities[i].pos.X = (worldWidth - entities[i].size.X);
 
-//                            //Creates variables for the pos of top and bottom of each hitbox
-//                            int Ay1 = c1.rect.Y;
-//                            int Ay2 = Ay1 + c1.rect.Height;
-//                            int By1 = c2.rect.Y;
-//                            int By2 = By1 + c2.rect.Height;
+                if (entities[i].pos.Y < 0)
+                    entities[i].pos.Y = 0;
+                else if (entities[i].pos.Y + entities[i].size.Y  > worldHeight)
+                    entities[i].pos.Y  = (worldHeight - entities[i].size.Y);
+            }
+        }
+
+        public void UpdateCollision()
+        {
+        }
 
 
-//                            //Checks if any of the sides of one hitbox are within the other on both axes
-//                            // TODO: Fix null-state
-//                            if ((Ax1 < Bx1 && Bx1 < Ax2)
-//                                || (Ax1 < Bx2 && Bx2 < Ax2))
-//                            {
-//                                if ((Ay1 < By1 && By1 < Ay2)
-//                                || (Ay1 < By2 && By2 < Ay2))
-//                                {
-                                    
-//                                    if (Math.Abs(By1 - Ay1) >= Math.Abs(By1 - Ay2))
-//                                    {
-//                                        if (Math.Abs(Bx1 - Ax1) >= Math.Abs(Bx1 - Ax2))
-//                                        {
-//                                            if(Math.Abs(Bx1-Ax2) > Math.Abs(By1-Ay2))
-//                                            {
-//                                                c1.SetPosition(c1.rect.X, By2 - c1.rect.Height);
-//                                                Console.WriteLine("1");
-//                                            }
-//                                            else
-//                                            {
-//                                                c1.SetPosition(Bx1 - c1.rect.Width, c1.rect.Y);
-//                                                Console.WriteLine("2");
-//                                            }
-//                                            //Console.WriteLine("1");
-//                                            //c1.SetPosition(c1.rect.X, By2 - c1.rect.Height);
-//                                            //c1.SetPosition(Bx1 - c1.rect.Width, c1.rect.Y);
+        public enum COLLISION_SIDE
+        {
+            /// <summary>No collision occurred.</summary>
+            None = 0,
+            /// <summary>Collision occurred at the top side.</summary>
+            Top = 1,
+            /// <summary>Collision occurred at the bottom side.</summary>
+            Bottom = 2,
+            /// <summary>Collision occurred at the left side.</summary>
+            Left = 4,
+            /// <summary>Collision occurred at the right side.</summary>
+            Right = 8
+        }
+
+        /// <summary>
+        /// AABB math to get side of intersection.
+        /// </summary>
+        public COLLISION_SIDE GetIntersectionSide(Rectangle rect, Rectangle other)
+        {
+            Rectangle intersection = Rectangle.Intersect(rect, other);
+            if (intersection == Rectangle.Empty)
+                return COLLISION_SIDE.None;
 
 
-//                                        }
-//                                        else
-//                                        {
-//                                            if (Math.Abs(Bx1 - Ax2) > Math.Abs(By1 - Ay2))
-//                                            {
-//                                                c1.SetPosition(c1.rect.X, By2 - c1.rect.Height);
-//                                                Console.WriteLine("3");
+            COLLISION_SIDE side;
 
-//                                            }
-
-//                                            else
-//                                            {
-//                                                c1.SetPosition(Bx2, c1.rect.Y);
-//                                                Console.WriteLine("4");
-//                                            }
-//                                            //c1.SetPosition(c1.rect.X, By2 - c1.rect.Height);
-//                                            //Console.WriteLine("2");
-//                                        }
-//                                    }
-//                                    else
-//                                    {
-//                                        if (Math.Abs(Bx1 - Ax1) >= Math.Abs(Bx1 - Ax2))
-//                                        {
-//                                            if(Math.Abs(Bx1-Ax2) > Math.Abs(By1-Ay1))
-//                                            {
-//                                                c1.SetPosition(c1.rect.X, c1.rect.Y);
-//                                                Console.WriteLine("5");
-
-//                                            }
-//                                            else
-//                                            {
-//                                                c1.SetPosition(c1.rect.X, By2);
-//                                                Console.WriteLine("6");
-
-//                                            }
-//                                            //Console.WriteLine("3");
-//                                            //c1.SetPosition(c1.rect.X, By1);
-//                                            //c1.SetPosition(Bx2, c1.rect.Y);
-//                                        }
-//                                        else
-//                                        {
-//                                            if(Math.Abs(Bx1-Ax1) > Math.Abs(By1-Ay1))
-//                                            {
-//                                                c1.SetPosition(c1.rect.X, By2 + c2.rect.Height);
-//                                                Console.WriteLine("7");
-
-//                                            }
-//                                            else
-//                                            {
-//                                                c1.SetPosition(c1.rect.X, By2);
-//                                                Console.WriteLine("8");
-
-//                                            }
-//                                            //c1.SetPosition(Bx2, c1.rect.Y);
-//                                            //Console.WriteLine("4");
-//                                        }
-//                                    }
-
-                                   
-//                                    //if (Math.Abs(Bx1 - Ax1) >= Math.Abs(Bx1 - Ax2))
-//                                    //{
-//                                    //    Console.WriteLine("1");
-//                                    //    c1.SetPosition(Bx1 - c1.rect.Width, c1.rect.Y);
-//                                    //}
-//                                    //else
-//                                    //{
-//                                    //    Console.WriteLine("2");
-//                                    //    c1.SetPosition(Bx2, c1.rect.Y);
-//                                    //}
-//                                }
+            float wy = (rect.Width + other.Width) * (rect.Center.Y - other.Center.Y);
+            float hx = (rect.Height + other.Height) * (rect.Center.X - other.Center.X);
 
 
-//                            }
-//                        }
+            if (wy > hx)
+            {
+                if (wy > -hx)
+                    side = COLLISION_SIDE.Bottom;
+                else
+                    side = COLLISION_SIDE.Left;
+            }
+            else
+            {
+                if (wy > -hx)
+                    side = COLLISION_SIDE.Right;
+                else
+                    side = COLLISION_SIDE.Top;
+            }
 
-//                    }
-//                }
-//            }
-
-
-
-
-//        }
-//    }
-
-//}
-
+            return side;
+        }
+    }
+}
