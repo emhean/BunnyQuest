@@ -25,12 +25,14 @@ namespace BunnyQuest
         ECS.System system;
         Map map;
 
+        Texture2D tex_background;
         Texture2D tex_carrot;
 
         public Main()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+            Window.AllowUserResizing = true;
         }
 
         protected override void Initialize()
@@ -53,6 +55,7 @@ namespace BunnyQuest
 
             tex_changedBunny_marker = Content.Load<Texture2D>("etc/hand");
             tex_carrot = Content.Load<Texture2D>("spritesheets/carrot");
+            tex_background = Content.Load<Texture2D>("etc/fk");
 
             system.AddEntity(new Entities.Player(0, this.Content)
             {
@@ -75,11 +78,11 @@ namespace BunnyQuest
             system.AddEntity(enemy);
 
 
+            for(int i = 0; i < 4; ++i)
+                system.AddEntity(new Entities.Tree(99 + i, Content) { pos = new Vector2(224 + (32 * i), 100) });
 
-            system.AddEntity(new Entities.Tree(99, Content)
-            {
-                pos = new Vector2(350, 100)
-            });
+            for (int i = 0; i < 4; ++i)
+                system.AddEntity(new Entities.Tree(99 + i, Content) { pos = new Vector2(384 + (32 * i), 100) });
         }
 
 
@@ -124,7 +127,7 @@ namespace BunnyQuest
             if (camera_entity == system.GetEntityCount())
                 camera_entity = 0;
 
-            t_changedBunny_marker = 2;
+            t_changedBunny_marker = 0;
             flag_changedBunny_marker = true;
         }
 
@@ -162,12 +165,12 @@ namespace BunnyQuest
                 //ChangeBunny();
             }
 
-            if(t_changedBunny_marker > 0)
+            if(t_changedBunny_marker < 2)
             {
-                t_changedBunny_marker -= (float)gameTime.ElapsedGameTime.TotalSeconds;
-                sin_marker = (float)Math.Sin(t_changedBunny_marker + sin_marker) * 4;
+                t_changedBunny_marker += (float)gameTime.ElapsedGameTime.TotalSeconds;
+                sin_marker += (float)Math.Cos(t_changedBunny_marker * 8);
             }
-            if(t_changedBunny_marker < 0)
+            if(t_changedBunny_marker > 2)
             {
                 flag_changedBunny_marker = false;
                 t_changedBunny_marker = 0;
@@ -251,7 +254,12 @@ namespace BunnyQuest
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.Black);
+            GraphicsDevice.Clear(Color.DarkGreen);
+
+            spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.PointClamp, null, null, null, null);
+            spriteBatch.Draw(tex_background, new Rectangle(0, 0, Window.ClientBounds.Width, Window.ClientBounds.Height), Color.White);
+            spriteBatch.End();
+
             spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.PointClamp, null, null, null, camera.GetTransformation(this.GraphicsDevice));
 
             for (int i = 0; i < map.mapWidth; ++i)
@@ -275,17 +283,17 @@ namespace BunnyQuest
             }
             spriteBatch.End();
 
+
+            #region User Interface stuff
             spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.PointClamp, null, null, null, null);
 
             for(int i = 0; i < player.GetComponent<CmpStats>().health_cap; ++i)
                 spriteBatch.Draw(tex_carrot, new Vector2(25 + (24 * i), 25), Color.Black);
 
             for (int i = 0; i < player.GetComponent<CmpStats>().GetHealth(); ++i)
-                spriteBatch.Draw(tex_carrot, new Vector2(25 + (24 * i), 25), Color.White);
-            
-
+                spriteBatch.Draw(tex_carrot, new Vector2(25 + (24 * i), 25), Color.White);            
             spriteBatch.End();
-
+            #endregion
 
             base.Draw(gameTime);
         }
