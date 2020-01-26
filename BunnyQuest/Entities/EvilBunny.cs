@@ -13,6 +13,8 @@ namespace BunnyQuest.Entities
         {
             this.AddComponent(new CmpCollider(this,  content.Load<Texture2D>("etc/pixel")));
 
+            this.AddComponent(new CmpStats(this, 10, 3));
+
             var patrol_points_in = new List<Vector2>()
             {
                 new Vector2(3,3), new Vector2(100,3), new Vector2(60, 200)
