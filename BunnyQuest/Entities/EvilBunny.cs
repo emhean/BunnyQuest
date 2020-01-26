@@ -12,6 +12,8 @@ namespace BunnyQuest.Entities
         {
             this.AddComponent(new CmpCollider(this,  content.Load<Texture2D>("etc/pixel")));
 
+            this.AddComponent(new CmpAi(this, Vector2.One));
+
             var anim = new CmpAnim(this, content.Load<Texture2D>("spritesheets/evilbunny"));
             this.AddComponent(anim);
 
