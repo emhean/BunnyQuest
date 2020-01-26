@@ -6,7 +6,10 @@
     /// <typeparam name="T">The type of the 2-dimensional grid. Must be struct.</typeparam>
     class Grid2D<T> where T : struct
     {
-        protected T[,] grid;
+        /// <summary>
+        /// The 2D array. The Y axis is indexed first.
+        /// </summary>
+        protected T[][] grid;
 
         public readonly int Size;
 
@@ -15,7 +18,9 @@
             Size = size; // Size is readonly.
 
             // Initialize grid (2D array)
-            grid = new T[size, size];
+            grid = new T[size][];
+            for (int y = 0; y < size; ++y) // Maybe not needed?
+                grid[y] = new T[size];
         }
 
         /// <summary>
@@ -27,20 +32,43 @@
         {
             get
             {
-                return grid[y, x];
+                return grid[y][x];
             }
             set
             {
-                grid[y, x] = value;
+                grid[y][x] = value;
             }
         }
 
         public T GetElement(int x, int y)
         {
-            return grid[y, x];
+            return grid[y][x];
         }
 
-        public int[][] Rotate(int[][] grid)
+        public void RotateClockwise()
+        {
+            int height = grid.Length;
+            int width = grid[0].Length;
+
+            if (height != width)
+                throw new System.Exception("Your 2D array is not square! So we crash.");
+
+
+            T[][] new_matrix = new T[height][];
+
+            for (int w = 0; w < new_matrix.Length; w++)
+                new_matrix[w] = new T[height];
+
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    new_matrix[height - 1 - y][x] = grid[y][x];
+                }
+            }
+        }
+
+        public static int[][] RotateClockwise(int[][] grid)
         {
             int height = grid.Length;
             int width = grid[0].Length;
@@ -64,7 +92,6 @@
                 return new_matrix;
             }
             else throw new System.Exception("Your 2D array is not square! So we crash.");
-
         }
     }
 }

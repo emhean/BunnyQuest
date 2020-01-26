@@ -50,8 +50,7 @@
     <Compile Include="ECS\Components\CmpCollider.cs" />
     <Compile Include="ECS\Entity.cs" />
     <Compile Include="ECS\System.cs" />
-    <Compile Include="Entities\Testa Transform.cs" />
-    <Compile Include="Entities\Bunny.cs" />
+    <Compile Include="Entities\EvilBunny.cs" />
     <Compile Include="Entities\Player.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Program.cs" />
