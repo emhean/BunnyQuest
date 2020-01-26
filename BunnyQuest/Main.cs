@@ -20,14 +20,12 @@ namespace BunnyQuest
 
 
         Camera.Camera2DControlled camera;
-
         int camera_entity;
-
         Entities.Player player;
-
         ECS.System system;
-
         Map map;
+
+        Texture2D tex_carrot;
 
         public Main()
         {
@@ -54,6 +52,7 @@ namespace BunnyQuest
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             tex_changedBunny_marker = Content.Load<Texture2D>("etc/hand");
+            tex_carrot = Content.Load<Texture2D>("spritesheets/carrot");
 
             system.AddEntity(new Entities.Player(0, this.Content)
             {
@@ -228,6 +227,7 @@ namespace BunnyQuest
             base.Update(gameTime);
         }
 
+
         /// <summary>
         /// This is called when the game should draw itself.
         /// </summary>
@@ -256,6 +256,13 @@ namespace BunnyQuest
                     GetCameraTarget().pos.Y - GetCameraTarget().size.Y + sin_marker);
                 spriteBatch.Draw(tex_changedBunny_marker, pos, Color.White);
             }
+
+
+            for(int i = 0; i < player.GetComponent<CmpStats>().GetHealth(); ++i)
+            {
+                spriteBatch.Draw(tex_carrot, new Vector2(50 + (50 * i), 50), Color.White);
+            }
+
 
             spriteBatch.End();
             base.Draw(gameTime);

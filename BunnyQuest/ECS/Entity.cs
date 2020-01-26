@@ -10,6 +10,11 @@ namespace BunnyQuest.ECS
         public Vector2 pos;
         public Vector2 size;
 
+        /// <summary>
+        /// If true, System will place this entity instance into the expired list and remove it from the entity list.
+        /// </summary>
+        public bool expired;
+
         public Entity(int UUID)
         {
             this.UUID = UUID;

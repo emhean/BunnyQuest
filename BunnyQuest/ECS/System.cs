@@ -70,6 +70,12 @@ namespace BunnyQuest.ECS
                         entities[i].components[j].Update(dt);
                     }
                 }
+
+                if (entities[i].expired)
+                {
+                    ExpireEntity(entities[i]);
+                    continue;
+                }
             }
 
             UpdateCollision(map); // TODO: Fix this or implement method somewhere else?
