@@ -256,15 +256,17 @@ namespace BunnyQuest
                     GetCameraTarget().pos.Y - GetCameraTarget().size.Y + sin_marker);
                 spriteBatch.Draw(tex_changedBunny_marker, pos, Color.White);
             }
+            spriteBatch.End();
 
-
-            for(int i = 0; i < player.GetComponent<CmpStats>().GetHealth(); ++i)
+            spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.PointClamp, null, null, null, null);
+            for (int i = 0; i < player.GetComponent<CmpStats>().GetHealth(); ++i)
             {
-                spriteBatch.Draw(tex_carrot, new Vector2(50 + (50 * i), 50), Color.White);
+                spriteBatch.Draw(tex_carrot, new Vector2((50 * i), 50), Color.White);
             }
 
-
             spriteBatch.End();
+
+
             base.Draw(gameTime);
         }
     }
