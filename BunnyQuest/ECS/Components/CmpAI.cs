@@ -15,6 +15,12 @@ namespace BunnyQuest.ECS.Components
         }
 
         public Vector2 destination;
+        public Vector2 velocity;
+
+        public void update_velocity(Vector2 spd)
+            {
+                velocity = spd;
+            }
 
         public void set_destination(Vector2 dest)
         {
@@ -24,6 +30,8 @@ namespace BunnyQuest.ECS.Components
         public override void Update(float delta)
         {
             var dir = Vector2.Normalize(Vector2.Subtract(entity.pos, destination));
+
+            entity.pos = Vector2.Add(entity.pos,  dir*velocity);
         }
     }
 }
