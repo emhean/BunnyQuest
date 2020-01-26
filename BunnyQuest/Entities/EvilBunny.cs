@@ -14,14 +14,15 @@ namespace BunnyQuest.Entities
 
             this.AddComponent(new CmpAi(this, Vector2.One));
 
-            var anim = new CmpAnim(this, content.Load<Texture2D>("spritesheets/evilbunny"));
-            this.AddComponent(anim);
-
-            anim.sprites = new Rectangle[]
+            var sprites = new Rectangle[][]
             {
-                new Rectangle(0,0, 32, 32),
-                new Rectangle(32, 0, 32, 32)
+                new Rectangle[] { new Rectangle(0, 0, 32, 32), new Rectangle(32, 0, 32, 32) },
+                new Rectangle[] { new Rectangle(0, 32, 32, 32), new Rectangle(32, 32, 32, 32) },
+                new Rectangle[] { new Rectangle(0, 64, 32, 32), new Rectangle(32, 64, 32, 32) },
+                new Rectangle[] { new Rectangle(0, 96, 32, 32), new Rectangle(32, 96, 32, 32) },
             };
+
+            AddComponent(new CmpAnim(this, content.Load<Texture2D>("spritesheets/evilbunny"), sprites));
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using BunnyQuest.ECS.Components;
+using BunnyQuest.World;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -12,6 +13,8 @@ namespace BunnyQuest.ECS
     class System
     {
         List<Entity> entities;
+        Map map;
+
 
         static int uuid_count;
         static int GetAvailableUUID()
@@ -21,8 +24,9 @@ namespace BunnyQuest.ECS
             return foo;
         }
 
-        public System()
+        public System(Map map)
         {
+            this.map = map;
             this.entities = new List<Entity>();
         }
 
@@ -52,10 +56,8 @@ namespace BunnyQuest.ECS
                 }
             }
 
-            UpdateWorldCollision(8 * 32, 8 * 32); // TODO: Fix this or implement method somewhere else?
-            UpdateCollision();
-
-            enemy_movement();
+            UpdateCollision(map); // TODO: Fix this or implement method somewhere else?
+            EnemyMovement();
         }
 
         public void Render(SpriteBatch spriteBatch)
@@ -72,50 +74,141 @@ namespace BunnyQuest.ECS
             }
         }
 
-        public void UpdateWorldCollision(int worldWidth, int worldHeight)
+        public void UpdateCollision(Map map)
         {
             for (int i = 0; i < entities.Count; ++i)
             {
+                #region World collision so that no entity moves outside the world
                 if (entities[i].pos.X < 0)
                     entities[i].pos.X = 0;
-                else if (entities[i].pos.X + entities[i].size.X > worldWidth)
-                    entities[i].pos.X = (worldWidth - entities[i].size.X);
+                else if (entities[i].pos.X + entities[i].size.X > map.mapWidth * 32)
+                    entities[i].pos.X = (map.mapWidth * 32 - entities[i].size.X);
 
                 if (entities[i].pos.Y < 0)
                     entities[i].pos.Y = 0;
-                else if (entities[i].pos.Y + entities[i].size.Y  > worldHeight)
-                    entities[i].pos.Y  = (worldHeight - entities[i].size.Y);
+                else if (entities[i].pos.Y + entities[i].size.Y > map.mapHeight * 32)
+                    entities[i].pos.Y = (map.mapHeight * 32 - entities[i].size.Y);
+                #endregion
+
+
+                var collider = entities[i].GetComponent<CmpCollider>();
+                if (collider != null)
+                {
+                    foreach (var row in map.tileGrid.grid)
+                    {
+                        foreach (var tile in row)
+                        {
+                            if (tile.collidable != true || !tile.rect.Intersects(collider.rect))
+                                continue;
+
+                            Rectangle intersection = Rectangle.Intersect(collider.rect, tile.rect);
+
+                            COLLISION_SIDE side = this.GetIntersectionSide(collider.rect, tile.rect);
+
+                            var e = entities[i];
+                            if (side == COLLISION_SIDE.Top)// && collider.rect.Top < intersection.Top
+                            {
+                                e.pos.Y = tile.rect.Y - e.size.Y;
+                                //entities[i].pos.Y -= intersection.Height;
+                                //collider.OnCollided(new CollisionArgs(side));
+                                //collider.Update(delta);
+                                continue;
+                            }
+                            else if (side == COLLISION_SIDE.Bottom)// && collider.rect.Bottom > intersection.Top
+                            {
+                                e.pos.Y = tile.rect.Y + tile.rect.Height;
+                                //entities[i].pos.Y += (intersection.Height);
+                                //collider.OnCollided(new CollisionArgs(side));
+                                //collider.Update(delta);
+                                continue;
+                            }
+
+                            if (side == COLLISION_SIDE.Left) //&& collider.rect.Y > tile.rect.Y
+                            {
+                                e.pos.X = tile.rect.X - e.size.X;
+                                //entities[i].pos.X -= intersection.Width;
+                                //collider.OnCollided(new CollisionArgs(side));
+                                //collider.Update(delta);
+                                continue;
+                            }
+                            else if (side == COLLISION_SIDE.Right)//((collider.rect.Bottom) > tile.rect.Top && side == COLLISION_SIDE.Right)  //&& collider.rect.Bottom < tile.rect.Top
+                            {
+                                e.pos.X = tile.rect.X + tile.rect.Width;
+                                //entities[i].pos.X += intersection.Width;
+                                //collider.OnCollided(new CollisionArgs(side));
+                                //collider.Update(delta);
+                                continue;
+                            }
+                        }
+
+                    }
+
+                    for (int j = 0; j < entities.Count; ++j)// (int j = i; j < entities.Count - i; ++j)
+                    {
+                        if (j == i)
+                            continue;
+
+                        var other = entities[j].GetComponent<CmpCollider>();
+                        if (other != null)
+                        {
+                            Rectangle intersection = Rectangle.Intersect(collider.rect, other.rect);
+
+                            COLLISION_SIDE side = GetIntersectionSide(collider.rect, other.rect);
+
+                            if (side != COLLISION_SIDE.None)
+                            {
+                                if (side == COLLISION_SIDE.Top)
+                                {
+                                    entities[i].pos.Y -= intersection.Height;
+                                    continue;
+                                }
+                                else if (side == COLLISION_SIDE.Bottom)
+                                {
+                                    entities[i].pos.Y += (intersection.Height);
+                                    continue;
+                                }
+
+                                if (side == COLLISION_SIDE.Left)
+                                {
+                                    entities[i].pos.X -= intersection.Width;
+                                    continue;
+                                }
+                                else if (side == COLLISION_SIDE.Right)
+                                {
+                                    entities[i].pos.X += intersection.Width;
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 
-        public void UpdateCollision()
-        {
-        }
-
-        public void enemy_movement()
+        public void EnemyMovement()
         {
             Vector2 dest = Vector2.Zero;
 
-            for (int i = 0; i< entities.Count; i++)
+            for (int i = 0; i < entities.Count; i++)
             {
                 if (entities[i] is Entities.Player p)
                 {
                     dest = entities[i].pos;
                     break;
-                }   
+                }
             }
 
             for (int i = 0; i < entities.Count; i++)
             {
                 var ai = entities[i].GetComponent<CmpAi>();
 
-                if(ai != null)
+                if (ai != null)
                 {
                     ai.set_destination(dest);
                 }
             }
         }
-        
+
 
 
         public enum COLLISION_SIDE

@@ -31,8 +31,7 @@ namespace BunnyQuest.World
                 {
                     for (int y = 0; y < mapHeight; y++)
                     {
-                        Rectangle tileRect = new Rectangle(x * 32, y * 32, 32, 32);
-                        tileGrid[y, x] = new Tile(rnd.Next(0, tileSheet.sourceRects.Length), tileRect);
+                        tileGrid[y, x] = Tile.Create(rnd.Next(0, tileSheet.sourceRects.Length), x, y);
                     }
                 }
             }
@@ -43,8 +42,8 @@ namespace BunnyQuest.World
                     new int[] { 1, 1, 1, 1, 0, 0, 0, 0 },
                     new int[] { 1, 0, 0, 0, 0, 0, 0, 0, },
                     new int[] { 1, 0, 0, 0, 0, 0, 0, 0, },
-                    new int[] { 1, 0, 0, 0, 0, 0, 0, 0, },
-                    new int[] { 0, 0, 0, 0, 0, 0, 0, 0, },
+                    new int[] { 1, 0, 3, 0, 3, 3, 0, 0, },
+                    new int[] { 0, 0, 3, 0, 0, 0, 0, 0, },
                     new int[] { 0, 0, 0, 0, 0, 0, 0, 0, },
                     new int[] { 0, 0, 0, 0, 0, 0, 0, 0, },
                     new int[] { 0, 0, 0, 0, 0, 0, 0, 0, }
@@ -54,8 +53,7 @@ namespace BunnyQuest.World
                 {
                     for (int y = 0; y < mapHeight; y++)
                     {
-                        Rectangle tileRect = new Rectangle(x * 32, y * 32, 32, 32);
-                        tileGrid[y, x] = new Tile(tiles[x][y], tileRect);
+                        tileGrid[y, x] = Tile.Create(tiles[x][y], x, y);
                     }
                 }
             }

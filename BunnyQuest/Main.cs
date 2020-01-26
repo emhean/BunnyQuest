@@ -1,4 +1,5 @@
-﻿using BunnyQuest.World;
+﻿using BunnyQuest.ECS.Components;
+using BunnyQuest.World;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -17,7 +18,7 @@ namespace BunnyQuest
 
 
         Camera.Camera2DControlled camera;
-        ECS.Entity player;
+        Entities.Player player;
         ECS.System system;
 
         Map map;
@@ -33,9 +34,10 @@ namespace BunnyQuest
             camera = new Camera.Camera2DControlled();
             camera.Zoom = 2;
 
-            system = new ECS.System();
-
             map = new Map(Content, 8);
+            system = new ECS.System(map);
+
+
 
             base.Initialize();
         }
@@ -78,19 +80,23 @@ namespace BunnyQuest
             if(keyboardState.IsKeyDown(Keys.W)) // Up
             {
                 player.pos.Y -= 1;
+                player.GetComponent<CmpAnim>().currentSpriteCollection = 0;
             }
             else if (keyboardState.IsKeyDown(Keys.S)) // Down
             {
                 player.pos.Y += 1;
+                player.GetComponent<CmpAnim>().currentSpriteCollection = 2;
             }
 
             if (keyboardState.IsKeyDown(Keys.A)) // Left
             {
                 player.pos.X -= 1;
+                player.GetComponent<CmpAnim>().currentSpriteCollection = 3;
             }
             else if (keyboardState.IsKeyDown(Keys.D)) // Right
             {
                 player.pos.X += 1;
+                player.GetComponent<CmpAnim>().currentSpriteCollection = 1;
             }
 
             camera.Position = player.pos + player.size / 2;
