@@ -216,8 +216,14 @@ namespace BunnyQuest.ECS
                     
                     if (ai.is_chasing)
                     {
-                        //if (Vector2.Distance(dest, entities[i].pos) >=100)
-                        ai.set_destination(dest);
+                        if (Vector2.Distance(dest, entities[i].pos) >= 100)
+                        {
+                            ai.set_ai_type("patrolling");
+                        }
+                        else
+                        {
+                            ai.set_destination(dest);
+                        }
                     }
                     else if (ai.is_patrolling)
                     {
