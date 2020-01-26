@@ -162,6 +162,9 @@ namespace BunnyQuest.ECS
 
                             if (side != COLLISION_SIDE.None)
                             {
+                                if (entities[i].GetComponent<CmpStats> == entities[j].GetComponent<CmpStats>)
+
+
                                 if (side == COLLISION_SIDE.Top)
                                 {
                                     entities[i].pos.Y -= intersection.Height;
