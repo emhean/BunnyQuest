@@ -195,6 +195,8 @@ namespace BunnyQuest.ECS
             // First we create a Vector2 containing the player's position, so we know where to go
             Vector2 dest = Vector2.Zero;
 
+
+            // Sets destination of AI to player's position.
             for (int i = 0; i < entities.Count; i++)
             {
                 if (entities[i] is Entities.Player p)
@@ -215,16 +217,19 @@ namespace BunnyQuest.ECS
                     {
                         ai.set_destination(dest);
                     }
-                    else if (ai.is_patrolling) ;
+                    else if (ai.is_patrolling)
                     {
-                        if (entities[i].pos == ai.patrol_points[0])
+                        if ((ai.patrol_timer <= 0 ) && (Vector2.Distance(entities[i].pos, ai.patrol_points[ai.which_point]) < 10))
                         {
+                            //ai.set_ai_type("chasing");
+                            Console.WriteLine(entities[0].pos);
                             ai.cycle_patrol_points();
                             ai.set_destination(ai.patrol_points[ai.which_point]);
+                            ai.set_patrol_timer(1);
                         }
                         else
                         {
-                            ai.set_destination(ai.patrol_points[0]);
+                            ai.set_destination(ai.patrol_points[ai.which_point]);
                         }
 
                     }
