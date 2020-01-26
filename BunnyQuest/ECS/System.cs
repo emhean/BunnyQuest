@@ -90,6 +90,31 @@ namespace BunnyQuest.ECS
         {
         }
 
+        public void enemy_movement()
+        {
+            Vector2 dest = new Vector2();
+
+            for (int i = 0; i< entities.Count; i++)
+            {
+                if (entities[i] is Entities.Player p)
+                {
+                    dest = entities[i].pos;
+                    break;
+                }   
+            }
+
+            for (int i = 0; i < entities.Count; i++)
+            {
+                var ai = entities[i].GetComponent<CmpAi>();
+
+                if(ai != null)
+                {
+                    ai.set_destination(dest);
+                }
+            }
+        }
+        
+
 
         public enum COLLISION_SIDE
         {
