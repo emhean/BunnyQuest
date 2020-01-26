@@ -24,6 +24,8 @@ namespace BunnyQuest.ECS.Components
 
         public override void Update(float delta)
         {
+            entity.expired = IsDead();
+
             if (iframes > 0)
             {
                 iframes = iframes - delta;
