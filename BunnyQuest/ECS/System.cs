@@ -207,25 +207,33 @@ namespace BunnyQuest.ECS
 
                 if (ai != null)
                 {
+                    
                     if (ai.is_chasing)
                     {
+                        //if (Vector2.Distance(dest, entities[i].pos) >=100)
                         ai.set_destination(dest);
                     }
                     else if (ai.is_patrolling)
                     {
-                        if ((ai.patrol_timer <= 0 ) && (Vector2.Distance(entities[i].pos, ai.patrol_points[ai.which_point]) < 10))
+                        if (Vector2.Distance(dest, entities[i].pos) < 100)
                         {
-                            //ai.set_ai_type("chasing");
-                            Console.WriteLine(entities[0].pos);
-                            ai.cycle_patrol_points();
-                            ai.set_destination(ai.patrol_points[ai.which_point]);
-                            ai.set_patrol_timer(1);
+                            ai.set_ai_type("chasing");
                         }
                         else
                         {
-                            ai.set_destination(ai.patrol_points[ai.which_point]);
+                            if ((ai.patrol_timer <= 0) && (Vector2.Distance(entities[i].pos, ai.patrol_points[ai.which_point]) < 10))
+                            {
+                                //ai.set_ai_type("chasing");
+                                Console.WriteLine(entities[0].pos);
+                                ai.cycle_patrol_points();
+                                ai.set_destination(ai.patrol_points[ai.which_point]);
+                                ai.set_patrol_timer(1);
+                            }
+                            else
+                            {
+                                ai.set_destination(ai.patrol_points[ai.which_point]);
+                            }
                         }
-
                     }
 
                 }
