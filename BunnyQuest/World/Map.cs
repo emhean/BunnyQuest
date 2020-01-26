@@ -24,6 +24,9 @@ namespace BunnyQuest.World
             this.tileGrid = new TileGrid(size);
             this.tileSheet = new TileSheet(content.Load<Texture2D>("tilesets/ts_nature"), 32);
 
+            this.bgm = content.Load<SoundEffect>("bgm/bunnies").CreateInstance();
+            this.bgm.Play();
+
             if (randomize)
             {
                 Random rnd = new Random(); // Init random

@@ -13,12 +13,6 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin bgm/snowy.wav
-/importer:WavImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:bgm/snowy.wav
-
 #begin etc/pixel.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -90,4 +84,10 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:spritesheets/tree.png
+
+#begin bgm/bunnies.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:bgm/bunnies.wav
 
