@@ -13,6 +13,7 @@ namespace BunnyQuest.ECS
     class System
     {
         List<Entity> entities;
+        List<Entity> entities_expired;
         Map map;
 
         static int uuid_count;
@@ -27,6 +28,7 @@ namespace BunnyQuest.ECS
         {
             this.map = map;
             this.entities = new List<Entity>();
+            this.entities_expired = new List<Entity>();
         }
 
         public int GetEntityCount() => entities.Count;
@@ -44,6 +46,15 @@ namespace BunnyQuest.ECS
         public void AddEntity(Entity entity)
         {
             this.entities.Add(entity);
+        }
+
+        /// <summary>
+        /// Adds the entity to the expired list and removes entity from active list.
+        /// </summary>
+        public void ExpireEntity(Entity entity)
+        {
+            entities_expired.Add(entity);
+            entities.Remove(entity);
         }
 
         public void Update(GameTime gameTime)
