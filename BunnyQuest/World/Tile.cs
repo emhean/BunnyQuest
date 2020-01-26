@@ -12,5 +12,10 @@ namespace BunnyQuest.World
             this.tileid = tileid;
             this.rect = rect;
         }
+
+        public override string ToString()
+        {
+            return tileid.ToString();
+        }
     }
 }

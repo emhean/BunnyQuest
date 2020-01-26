@@ -50,10 +50,6 @@ namespace BunnyQuest.World
                     new int[] { 0, 0, 0, 0, 0, 0, 0, 0, }
                 };
 
-
-                MatrixFunktioner matrixFunktioner = new MatrixFunktioner();
-                tiles = matrixFunktioner.Matrix_transformer(tiles);
-
                 for (int x = 0; x < mapWidth; x++)
                 {
                     for (int y = 0; y < mapHeight; y++)

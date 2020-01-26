@@ -1,4 +1,6 @@
-﻿namespace BunnyQuest.World
+﻿using System;
+
+namespace BunnyQuest.World
 {
     /// <summary>
     /// A generic 2D grid class.
@@ -9,7 +11,7 @@
         /// <summary>
         /// The 2D array. The Y axis is indexed first.
         /// </summary>
-        protected T[][] grid;
+        public T[][] grid;
 
         public readonly int Size;
 
@@ -45,7 +47,28 @@
             return grid[y][x];
         }
 
-        public void RotateClockwise()
+        /// <summary>
+        /// DOES NOT WORK AT THE MOMENT!!!!
+        /// </summary>
+        public T[][] RotateClockwise()
+        {
+            T[][] new_grid = new T[Size][];
+
+            for (int i = 0; i < new_grid.Length; i++)
+                new_grid[i] = new T[Size];
+
+            for (int x = 0; x < Size; x++)
+            {
+                for (int y = 0; y < Size; y++)
+                {
+                    new_grid[Size - 1 - y][x] = grid[y][x];
+                }
+            }
+
+            return new_grid;
+        }
+
+        public static int[][] RotateClockwise(int[][] grid)
         {
             int height = grid.Length;
             int width = grid[0].Length;
@@ -53,45 +76,32 @@
             if (height != width)
                 throw new System.Exception("Your 2D array is not square! So we crash.");
 
-
-            T[][] new_matrix = new T[height][];
+            int[][] new_matrix = new int[height][];
 
             for (int w = 0; w < new_matrix.Length; w++)
-                new_matrix[w] = new T[height];
+                new_matrix[w] = new int[height];
 
-            for (int x = 0; x < width; x++)
+            for (int x = 0; x < height; x++)
             {
-                for (int y = 0; y < height; y++)
+                for (int y = 0; y < width; y++)
                 {
                     new_matrix[height - 1 - y][x] = grid[y][x];
                 }
             }
+
+            return new_matrix;
         }
 
-        public static int[][] RotateClockwise(int[][] grid)
+        public void Print()
         {
-            int height = grid.Length;
-            int width = grid[0].Length;
-            int[][] new_matrix = new int[height][];
-
-            for (int w = 0; w < new_matrix.Length; w++)
-                //  for (int h = 0; h < height + 1; h++)
-                new_matrix[w] = new int[height];
-
-
-            if (height == width)
+            for (int x = 0; x < Size; x++)
             {
-                for (int x = 0; x < height; x++)
+                for (int y = 0; y < Size; y++)
                 {
-                    for (int y = 0; y < width; y++)
-                    {
-
-                        new_matrix[height - 1 - y][x] = grid[y][x];
-                    }
+                    Console.Write(grid[y][x].ToString());
                 }
-                return new_matrix;
+                Console.WriteLine();
             }
-            else throw new System.Exception("Your 2D array is not square! So we crash.");
         }
     }
 }
