@@ -17,53 +17,63 @@ namespace BunnyQuest.ECS.Components
         public int health_cap;
         public int damage;
         public int damage_reduction;
-        
-        public int get_health()
+
+        public float iframes;
+
+        public override void Update(float delta)
+        {
+            if (iframes > 0)
+            {
+                iframes = iframes - delta;
+            }
+        }
+
+        public int GetHealth()
         {
             return health;
         }
 
-        public int get_damage()
+        public int GetDamage()
         {
             return damage;
         }
 
 
-        public void increase_health(int health_gain)
+        public void IncreaseHealth(int health_gain)
         {
             health = health + health_gain;
         }
 
-        public void take_damage(int damage_taken)
+        public void TakeDamage(int damage_taken)
         {
             health = health + damage_reduction - damage_taken;
         }
 
-        public bool is_dead()
+        public bool IsDead()
         {
             return (health < 0);
         }
 
 
-        public void increase_damage(int dmg_gain)
+        public void IncreaseDamage(int dmg_gain)
         {
             damage = damage + dmg_gain;
         }
 
-        public void decrease_damage(int dmg_loss)
+        public void DecreaseDamage(int dmg_loss)
         {
             damage = damage - dmg_loss;
         }
 
 
-        public void increase_dmg_red(int red_gain)
+        public void IncreaseDamageReduction(int reduction_gain)
         {
-            damage_reduction = damage_reduction + red_gain;
+            damage_reduction = damage_reduction + reduction_gain;
         }
 
-        public void decrease_dmg_red(int red_loss)
+        public void DecreaseDamageReduction(int reduction_loss)
         {
-            damage_reduction = damage_reduction - red_loss;
+            damage_reduction = damage_reduction - reduction_loss;
         }
     }
 
