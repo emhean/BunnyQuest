@@ -10,8 +10,8 @@ using Microsoft.Xna.Framework.Graphics;
 /// The velocity is set when the component is created and can be updated later if so desired.
 /// The destination is continuously updated in System.cs, as the enemies' movement depends on where the player is.
 /// 
-/// TODO: What if we want a "patrolling" enemy? Work it out in the enemy_movement() in system.cs.
-///         CmpAi might needsome new handles to know how it's supposed to move.
+/// Patrol points are now active
+/// they should hopefully work
 /// </summary>
 
 
@@ -36,18 +36,27 @@ namespace BunnyQuest.ECS.Components
 
         
         public List<Vector2> patrol_points;
+        public int which_point;
 
         public void set_patrol_points(Vector2[] points)
         {
             patrol_points.AddRange(points);
         }
 
+        // Puts the first element of the parol point list last
         public void cycle_patrol_points()
         {
-            patrol_points.Add(patrol_points[0]);
-            patrol_points.RemoveAt(0);
+            if (which_point < patrol_points.Count -1)
+                {
+                    ++which_point;
+                }
+            else
+                {
+                    which_point = 0;
+                }
         }
 
+        // Makes it possible to change AI type (useful to make enemies stop etc)
         public void set_ai_type(string ai_type)
         {
             if (ai_type == "chasing")

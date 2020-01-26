@@ -15,10 +15,10 @@ namespace BunnyQuest.Entities
 
             var patrol_points = new List<Vector2>()
             {
-                Vector2.Zero
+                Vector2.Zero, new Vector2(100,40), new Vector2(60, 200)
             };
 
-            this.AddComponent(new CmpAi(this, Vector2.One, false, true, patrol_points));
+            this.AddComponent(new CmpAi(this, Vector2.One, true, false, patrol_points));
 
             var anim = new CmpAnim(this, content.Load<Texture2D>("spritesheets/evilbunny"));
             this.AddComponent(anim);

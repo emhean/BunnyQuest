@@ -108,6 +108,7 @@ namespace BunnyQuest.ECS
 
 
             // Then we give the position to each enemy with an AI component. Their movement is managed within the class
+
             for (int i = 0; i < entities.Count; i++)
             {
                 var ai = entities[i].GetComponent<CmpAi>();
@@ -123,7 +124,7 @@ namespace BunnyQuest.ECS
                         if (entities[i].pos == ai.patrol_points[0])
                         {
                             ai.cycle_patrol_points();
-                            ai.set_destination(ai.patrol_points[0]);
+                            ai.set_destination(ai.patrol_points[ai.which_point]);
                         }
                         else
                         {
