@@ -3,6 +3,7 @@ using BunnyQuest.ECS.Components;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 
 namespace BunnyQuest.Entities
 {
@@ -12,7 +13,12 @@ namespace BunnyQuest.Entities
         {
             this.AddComponent(new CmpCollider(this,  content.Load<Texture2D>("etc/pixel")));
 
-            this.AddComponent(new CmpAi(this, Vector2.One));
+            var patrol_points = new List<Vector2>()
+            {
+                Vector2.Zero
+            };
+
+            this.AddComponent(new CmpAi(this, Vector2.One, false, true, patrol_points));
 
             var anim = new CmpAnim(this, content.Load<Texture2D>("spritesheets/evilbunny"));
             this.AddComponent(anim);

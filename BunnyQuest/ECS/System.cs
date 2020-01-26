@@ -94,8 +94,9 @@ namespace BunnyQuest.ECS
 
         public void enemy_movement()
         {
+            // First we create a Vector2 containing the player's position, so we know where to go
             Vector2 dest = Vector2.Zero;
-
+            
             for (int i = 0; i< entities.Count; i++)
             {
                 if (entities[i] is Entities.Player p)
@@ -105,13 +106,32 @@ namespace BunnyQuest.ECS
                 }   
             }
 
+
+            // Then we give the position to each enemy with an AI component. Their movement is managed within the class
             for (int i = 0; i < entities.Count; i++)
             {
                 var ai = entities[i].GetComponent<CmpAi>();
 
                 if(ai != null)
                 {
-                    ai.set_destination(dest);
+                    if (ai.is_chasing)
+                    {
+                        ai.set_destination(dest);
+                    }
+                    else if (ai.is_patrolling);
+                    {
+                        if (entities[i].pos == ai.patrol_points[0])
+                        {
+                            ai.cycle_patrol_points();
+                            ai.set_destination(ai.patrol_points[0]);
+                        }
+                        else
+                        {
+                            ai.set_destination(ai.patrol_points[0]);
+                        }
+
+                    }
+                        
                 }
             }
         }
