@@ -21,6 +21,8 @@ namespace BunnyQuest
 
         Camera.Camera2DControlled camera;
 
+        int camera_entity;
+
         Entities.Player player;
 
         ECS.System system;
@@ -100,8 +102,6 @@ namespace BunnyQuest
             t_changedBunny_marker = 2;
             flag_changedBunny_marker = true;
 
-            return;
-
             for (int i = 0; i < system.GetEntityCount(); i++)
             {
                 if (i == player.UUID)
@@ -112,11 +112,21 @@ namespace BunnyQuest
                 if (ent is Entities.Player p)
                 {
                     player = p;
-
                     t_changedBunny_marker = 2;
                     flag_changedBunny_marker = true;
                 }
             }
+        }
+
+        private ECS.Entity GetCameraTarget() => system.GetEntity(camera_entity);
+        private void SetCameraTarget()
+        {
+            camera_entity += 1;
+            if (camera_entity == system.GetEntityCount())
+                camera_entity = 0;
+
+            t_changedBunny_marker = 2;
+            flag_changedBunny_marker = true;
         }
 
         /// <summary>
@@ -132,7 +142,8 @@ namespace BunnyQuest
 
             if (keyboardState.IsKeyUp(Keys.Tab) && previous_keyboardState.IsKeyDown(Keys.Tab))
             {
-                ChangeBunny();
+                SetCameraTarget();
+                //ChangeBunny();
             }
 
             if(t_changedBunny_marker > 0)
@@ -173,6 +184,14 @@ namespace BunnyQuest
             else player.direction.X = 0;
 
 
+            if (player.direction == Vector2.Zero)
+            {
+                player.GetComponent<CmpAnim>().IsUpdated = false;
+            }
+            else player.GetComponent<CmpAnim>().IsUpdated = true;
+
+
+
             if (player.direction.X == 1 && player.direction.Y == -1)
             {
                 player.GetComponent<CmpAnim>().currentSpriteCollection = 0;
@@ -198,7 +217,7 @@ namespace BunnyQuest
 
             player.pos += (player.speed * player.direction);
 
-            camera.Position = player.pos + player.size / 2;
+            camera.Position = GetCameraTarget().pos + GetCameraTarget().size / 2;
             // Update camera before updating the ECS
             camera.UpdateControls((float)gameTime.ElapsedGameTime.TotalSeconds);
             // Update the ECS
@@ -233,8 +252,8 @@ namespace BunnyQuest
             if(flag_changedBunny_marker)
             {
                 Vector2 pos = new Vector2(
-                    player.pos.X + tex_changedBunny_marker.Width / 4,
-                    player.pos.Y - player.size.Y + sin_marker);
+                    GetCameraTarget().pos.X + tex_changedBunny_marker.Width / 4,
+                    GetCameraTarget().pos.Y - GetCameraTarget().size.Y + sin_marker);
                 spriteBatch.Draw(tex_changedBunny_marker, pos, Color.White);
             }
 
