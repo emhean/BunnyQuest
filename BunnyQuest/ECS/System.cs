@@ -29,6 +29,12 @@ namespace BunnyQuest.ECS
             this.entities = new List<Entity>();
         }
 
+        public int GetEntityCount() => entities.Count;
+        public Entity GetEntity(int uuid)
+        {
+            return entities[uuid];
+        }
+
         public Entity CreateEntity()
         {
             var ent = new Entity(GetAvailableUUID());

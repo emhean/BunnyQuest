@@ -3,6 +3,7 @@ using BunnyQuest.World;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 
 namespace BunnyQuest
 {
@@ -14,11 +15,14 @@ namespace BunnyQuest
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
+        KeyboardState previous_keyboardState;
         KeyboardState keyboardState;
 
 
         Camera.Camera2DControlled camera;
+
         Entities.Player player;
+
         ECS.System system;
 
         Map map;
@@ -32,9 +36,9 @@ namespace BunnyQuest
         protected override void Initialize()
         {
             camera = new Camera.Camera2DControlled();
-            camera.Zoom = 2;
+            camera.Zoom = 1.5f;
 
-            map = new Map(Content, 8);
+            map = new Map(Content, 16);
             system = new ECS.System(map);
 
 
@@ -47,12 +51,20 @@ namespace BunnyQuest
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            tex_changedBunny_marker = Content.Load<Texture2D>("etc/hand");
 
-            player = new Entities.Player(0, this.Content)
+            system.AddEntity(new Entities.Player(0, this.Content)
             {
-                size = new Vector2(32, 32)
-            };
-            system.AddEntity(player);
+                size = new Vector2(32, 32),
+                pos = new Vector2(240, 240)
+            });
+            system.AddEntity(new Entities.Player(1, this.Content)
+            {
+                size = new Vector2(32, 32),
+                pos = new Vector2(277, 240)
+            });
+
+            this.player = (Entities.Player)system.GetEntity(0);
 
             var enemy = new Entities.EvilBunny(11, this.Content)
             {
@@ -65,6 +77,41 @@ namespace BunnyQuest
 
         protected override void UnloadContent() { }
 
+        Texture2D tex_changedBunny_marker;
+        bool flag_changedBunny_marker;
+        float t_changedBunny_marker = 2;
+        float sin_marker;
+
+        private void ChangeBunny()
+        {
+            if(player.UUID == 1)
+                this.player = (Entities.Player)system.GetEntity(0);
+            else if(player.UUID == 0)
+                this.player = (Entities.Player)system.GetEntity(1);
+
+
+            t_changedBunny_marker = 2;
+            flag_changedBunny_marker = true;
+
+            return;
+
+            for (int i = 0; i < system.GetEntityCount(); i++)
+            {
+                if (i == player.UUID)
+                    continue;
+
+                var ent = system.GetEntity(i);
+
+                if (ent is Entities.Player p)
+                {
+                    player = p;
+
+                    t_changedBunny_marker = 2;
+                    flag_changedBunny_marker = true;
+                }
+            }
+        }
+
         /// <summary>
         /// Allows the game to run logic such as updating the world,
         /// checking for collisions, gathering input, and playing audio.
@@ -76,28 +123,73 @@ namespace BunnyQuest
             if (keyboardState.IsKeyDown(Keys.Escape))
                 Exit();
 
-
-            if(keyboardState.IsKeyDown(Keys.W)) // Up
+            if (keyboardState.IsKeyUp(Keys.Tab) && previous_keyboardState.IsKeyDown(Keys.Tab))
             {
-                player.pos.Y -= 1;
+                ChangeBunny();
+            }
+
+            if(t_changedBunny_marker > 0)
+            {
+                t_changedBunny_marker -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+                sin_marker = (float)Math.Sin(t_changedBunny_marker + sin_marker) * 4;
+            }
+            if(t_changedBunny_marker < 0)
+            {
+                flag_changedBunny_marker = false;
+                t_changedBunny_marker = 0;
+            }
+
+
+
+            if (keyboardState.IsKeyDown(Keys.W)) // Up
+            {
+                player.direction.Y = -1;
                 player.GetComponent<CmpAnim>().currentSpriteCollection = 0;
             }
             else if (keyboardState.IsKeyDown(Keys.S)) // Down
             {
-                player.pos.Y += 1;
+                player.direction.Y = 1;
                 player.GetComponent<CmpAnim>().currentSpriteCollection = 2;
             }
+            else player.direction.Y = 0;
 
             if (keyboardState.IsKeyDown(Keys.A)) // Left
             {
-                player.pos.X -= 1;
+                player.direction.X = -1;
                 player.GetComponent<CmpAnim>().currentSpriteCollection = 3;
             }
             else if (keyboardState.IsKeyDown(Keys.D)) // Right
             {
-                player.pos.X += 1;
+                player.direction.X = 1;
                 player.GetComponent<CmpAnim>().currentSpriteCollection = 1;
             }
+            else player.direction.X = 0;
+
+
+            if (player.direction.X == 1 && player.direction.Y == -1)
+            {
+                player.GetComponent<CmpAnim>().currentSpriteCollection = 0;
+                player.GetComponent<CmpAnim>().rotation = 0.45f;
+            }
+            else if (player.direction.X == -1 && player.direction.Y == -1)
+            {
+                player.GetComponent<CmpAnim>().currentSpriteCollection = 0;
+                player.GetComponent<CmpAnim>().rotation = -0.45f;
+            }
+            else if (player.direction.X == 1 && player.direction.Y == 1)
+            {
+                player.GetComponent<CmpAnim>().currentSpriteCollection = 1;
+                player.GetComponent<CmpAnim>().rotation = 0.90f;
+            }
+            else if (player.direction.X == -1 && player.direction.Y == 1)
+            {
+                player.GetComponent<CmpAnim>().currentSpriteCollection = 3;
+                player.GetComponent<CmpAnim>().rotation = -0.90f;
+            }
+            else player.GetComponent<CmpAnim>().rotation = 0f;
+
+
+            player.pos += (player.speed * player.direction);
 
             camera.Position = player.pos + player.size / 2;
             // Update camera before updating the ECS
@@ -105,6 +197,8 @@ namespace BunnyQuest
             // Update the ECS
             system.Update(gameTime);
 
+
+            previous_keyboardState = keyboardState;
             base.Update(gameTime);
         }
 
@@ -128,6 +222,14 @@ namespace BunnyQuest
 
             // Render the ECS world
             system.Render(spriteBatch);
+
+            if(flag_changedBunny_marker)
+            {
+                Vector2 pos = new Vector2(
+                    player.pos.X + tex_changedBunny_marker.Width / 4,
+                    player.pos.Y - player.size.Y + sin_marker);
+                spriteBatch.Draw(tex_changedBunny_marker, pos, Color.White);
+            }
 
             spriteBatch.End();
             base.Draw(gameTime);

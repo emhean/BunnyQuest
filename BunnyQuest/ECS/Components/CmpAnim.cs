@@ -10,6 +10,9 @@ namespace BunnyQuest.ECS.Components
         public int currentSprite;
         public int currentSpriteCollection;
 
+        public Vector2 origin = new Vector2(16, 16);
+        public float rotation;
+
         public float animSpeed = 0.3f;
         public float t;
 
@@ -40,7 +43,8 @@ namespace BunnyQuest.ECS.Components
 
         public override void Render(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(spriteSheet, entity.pos, sprites[currentSpriteCollection][currentSprite], Color.White);
+            spriteBatch.Draw(spriteSheet, entity.pos + entity.size / 2, sprites[currentSpriteCollection][currentSprite],
+                Color.White, rotation, origin, 1f, SpriteEffects.None, 0f);
         }
     }
 }
