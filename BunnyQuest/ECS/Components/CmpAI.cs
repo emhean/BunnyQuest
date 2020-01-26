@@ -34,9 +34,16 @@ namespace BunnyQuest.ECS.Components
         public Vector2 destination;
         public Vector2 velocity;
 
+        public float patrol_timer;
+
         
         public List<Vector2> patrol_points;
         public int which_point;
+
+        public void set_patrol_timer(int time)
+        {
+            patrol_timer = time;
+         }
 
         public void set_patrol_points(Vector2[] points)
         {
@@ -46,9 +53,10 @@ namespace BunnyQuest.ECS.Components
         // Puts the first element of the parol point list last
         public void cycle_patrol_points()
         {
-            if (which_point < patrol_points.Count -1)
+            if (which_point < patrol_points.Count -  1)
                 {
                     ++which_point;
+                    Console.WriteLine(patrol_points[0]);
                 }
             else
                 {
@@ -90,7 +98,11 @@ namespace BunnyQuest.ECS.Components
         {
             var dir = Vector2.Normalize(Vector2.Subtract(destination, entity.pos));
 
-
+            if (patrol_timer > 0)
+            {
+                patrol_timer = patrol_timer - delta;
+                Console.WriteLine(patrol_timer);
+            }
             entity.pos += dir * velocity;
         }
     }
