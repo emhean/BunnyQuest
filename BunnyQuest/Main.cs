@@ -65,7 +65,7 @@ namespace BunnyQuest
                 pos = new Vector2(277, 240)
             });
 
-            this.player = (Entities.Player)system.GetEntity(0);
+            this.player = (Entities.Player)system.GetEntityFromIndex(0);
 
             var enemy = new Entities.EvilBunny(11, this.Content)
             {
@@ -117,7 +117,7 @@ namespace BunnyQuest
             }
         }
 
-        private ECS.Entity GetCameraTarget() => system.GetEntity(camera_entity);
+        private ECS.Entity GetCameraTarget() => system.GetEntityFromIndex(camera_entity);
         private void SetCameraTarget()
         {
             camera_entity += 1;
@@ -138,6 +138,23 @@ namespace BunnyQuest
             keyboardState = Keyboard.GetState(); // Get state of keyboard (pressed button etc)
             if (keyboardState.IsKeyDown(Keys.Escape))
                 Exit();
+
+
+            if (player.expired)
+            {
+                // If player controlled bunny is dead we find the next one.... hopefully
+                for (int i = 0; i < system.GetEntityCount(); ++i)
+                {
+                    if (system.GetEntityFromIndex(i) is Entities.Player p)
+                    {
+                        if (p.expired == false)
+                        {
+                            player = p;
+                            break;
+                        }
+                    }
+                }
+            }
 
             if (keyboardState.IsKeyUp(Keys.Tab) && previous_keyboardState.IsKeyDown(Keys.Tab))
             {
@@ -259,10 +276,13 @@ namespace BunnyQuest
             spriteBatch.End();
 
             spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.PointClamp, null, null, null, null);
+
+            for(int i = 0; i < player.GetComponent<CmpStats>().health_cap; ++i)
+                spriteBatch.Draw(tex_carrot, new Vector2(25 + (24 * i), 25), Color.Black);
+
             for (int i = 0; i < player.GetComponent<CmpStats>().GetHealth(); ++i)
-            {
-                spriteBatch.Draw(tex_carrot, new Vector2((50 * i), 50), Color.White);
-            }
+                spriteBatch.Draw(tex_carrot, new Vector2(25 + (24 * i), 25), Color.White);
+            
 
             spriteBatch.End();
 

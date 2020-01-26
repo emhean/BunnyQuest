@@ -34,7 +34,18 @@ namespace BunnyQuest.ECS
         public int GetEntityCount() => entities.Count;
         public Entity GetEntity(int uuid)
         {
-            return entities[uuid];
+            for(int i = 0; i < entities.Count; ++i)
+            {
+                if (entities[i].UUID == uuid)
+                    return entities[i];
+            }
+
+            throw new Exception("CRITICAL!!! An Entity of that UUID does not exist!!");
+        }
+
+        public Entity GetEntityFromIndex(int index)
+        {
+            return entities[index];
         }
 
         public Entity CreateEntity()
