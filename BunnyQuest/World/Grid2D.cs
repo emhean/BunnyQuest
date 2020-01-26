@@ -39,5 +39,32 @@
         {
             return grid[y, x];
         }
+
+        public int[][] Rotate(int[][] grid)
+        {
+            int height = grid.Length;
+            int width = grid[0].Length;
+            int[][] new_matrix = new int[height][];
+
+            for (int w = 0; w < new_matrix.Length; w++)
+                //  for (int h = 0; h < height + 1; h++)
+                new_matrix[w] = new int[height];
+
+
+            if (height == width)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    for (int y = 0; y < height; y++)
+                    {
+
+                        new_matrix[height - 1 - y][x] = grid[y][x];
+                    }
+                }
+                return new_matrix;
+            }
+            else throw new System.Exception("Your 2D array is not square! So we crash.");
+
+        }
     }
 }
