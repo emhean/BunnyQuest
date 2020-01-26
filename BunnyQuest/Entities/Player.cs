@@ -8,6 +8,9 @@ namespace BunnyQuest.Entities
 {
     class Player : Entity
     {
+        public Vector2 speed = new Vector2(2.5f, 2.5f);
+        public Vector2 direction = Vector2.Zero;
+
         public Player(int UUID, ContentManager content) : base(UUID)
         {
             this.AddComponent(new CmpCollider(this, content.Load<Texture2D>("etc/pixel")));
