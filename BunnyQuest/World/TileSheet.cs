@@ -35,7 +35,9 @@ namespace BunnyQuest.World
                 new Rectangle(0, 64, 32, 32), // Grass
                 new Rectangle(32, 64, 32, 32), // Water
                 new Rectangle(64, 64, 32, 32), // Brown Rocks
-                new Rectangle(96, 64, 32, 32) // Bricks
+                new Rectangle(96, 64, 32, 32), // Bricks
+
+                new Rectangle(0, 0, 32, 64)// Tree
             };
         }
     }

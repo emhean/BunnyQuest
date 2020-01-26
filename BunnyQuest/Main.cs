@@ -72,6 +72,13 @@ namespace BunnyQuest
                 size = new Vector2(32, 32)
             };
             system.AddEntity(enemy);
+
+
+
+            system.AddEntity(new Entities.Tree(99, Content)
+            {
+                pos = new Vector2(350, 100)
+            });
         }
 
 

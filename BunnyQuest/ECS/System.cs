@@ -160,7 +160,7 @@ namespace BunnyQuest.ECS
 
                             COLLISION_SIDE side = GetIntersectionSide(collider.rect, other.rect);
 
-                            if (side != COLLISION_SIDE.None)
+                            if (collider.GetsPushed && side != COLLISION_SIDE.None)
                             {
                                 if (entities[i].GetComponent<CmpStats> == entities[j].GetComponent<CmpStats>)
 

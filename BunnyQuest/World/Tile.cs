@@ -12,6 +12,9 @@ namespace BunnyQuest.World
         {
             if (tileid == 3)
                 return new Tile(tileid, new Rectangle(x * 32, y * 32, 32, 32), true);
+            else if (tileid == 4)
+                return new Tile(tileid, new Rectangle(x * 32, y * 32, 32, 64), true);
+
 
             return new Tile(tileid, new Rectangle(x * 32, y * 32, 32, 32), false);
         }

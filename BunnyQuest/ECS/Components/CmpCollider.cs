@@ -6,8 +6,11 @@ namespace BunnyQuest.ECS.Components
     class CmpCollider : Component
     {
         public Rectangle rect;
+        public Rectangle offset;
 
-        Texture2D tex_px;
+        public bool GetsPushed = false;
+
+        Texture2D tex_px; // Debug texture
         public bool Debug { get; set; } = true;
 
         public CmpCollider(Entity owner) : base(owner)
@@ -25,6 +28,11 @@ namespace BunnyQuest.ECS.Components
             rect.Y = (int)this.entity.pos.Y;
             rect.Width = (int)this.entity.size.X;
             rect.Height = (int)this.entity.size.Y;
+
+            rect.X += offset.X;
+            rect.Y += offset.Y;
+            rect.Width += offset.Width;
+            rect.Height += offset.Height;
 
             base.Update(delta);
         }
