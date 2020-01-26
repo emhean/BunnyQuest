@@ -17,7 +17,7 @@ namespace BunnyQuest.ECS
         }
 
         /// <summary>
-        /// Gets component of type.
+        /// Gets component of T type.
         /// </summary>
         public T GetComponent<T>() where T : Component
         {
@@ -31,6 +31,12 @@ namespace BunnyQuest.ECS
 
             return null;
         }
+
+
+        /// <summary>
+        /// Returns true if Entity has component of T Type, returns false if not.
+        /// </summary>
+        public bool HasComponent<T>() where T : Component => (GetComponent<T>() != null);
 
         /// <summary>
         /// Add component.

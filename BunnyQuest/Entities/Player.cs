@@ -13,7 +13,7 @@ namespace BunnyQuest.Entities
 
         public Player(int UUID, ContentManager content) : base(UUID)
         {
-            this.AddComponent(new CmpCollider(this, content.Load<Texture2D>("etc/pixel")));
+            this.AddComponent(new CmpCollider(this, content.Load<Texture2D>("etc/pixel")) { GetsPushed = true });
 
             var sprites = new Rectangle[][]
             {
