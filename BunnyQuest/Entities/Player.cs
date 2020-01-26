@@ -15,6 +15,8 @@ namespace BunnyQuest.Entities
         {
             this.AddComponent(new CmpCollider(this, content.Load<Texture2D>("etc/pixel")) { GetsPushed = true });
 
+            this.AddComponent(new CmpStats(this, 10, 0));
+
             var sprites = new Rectangle[][]
             {
                 new Rectangle[] { new Rectangle(0, 0, 32, 32),new Rectangle(32, 0, 32, 32) },

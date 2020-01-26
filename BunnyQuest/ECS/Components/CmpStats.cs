@@ -8,9 +8,11 @@ namespace BunnyQuest.ECS.Components
 {
     class CmpStats : Component
     {
-        public CmpStats(Entity owner) : base(owner)
+        public CmpStats(Entity owner, int in_health, int in_damage) : base(owner)
         {
-
+            health = in_health;
+            damage = in_damage;
+            health_cap = in_health;
         }
 
         public int health;
@@ -41,7 +43,15 @@ namespace BunnyQuest.ECS.Components
 
         public void IncreaseHealth(int health_gain)
         {
-            health = health + health_gain;
+            if ((health + health_gain) < health_cap)
+            {
+                health += health_gain;
+            }
+            else
+            {
+                health = health_cap;
+            }
+
         }
 
         public void TakeDamage(int damage_taken)
