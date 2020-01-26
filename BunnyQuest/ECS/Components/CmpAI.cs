@@ -10,8 +10,9 @@ namespace BunnyQuest.ECS.Components
 {
     class CmpAi : Component
     {
-        public CmpAi(Entity owner) : base(owner)
+        public CmpAi(Entity owner, Vector2 init_velocity) : base(owner)
         {
+            velocity = init_velocity;
         }
 
         public Vector2 destination;
@@ -29,9 +30,11 @@ namespace BunnyQuest.ECS.Components
 
         public override void Update(float delta)
         {
-            var dir = Vector2.Normalize(Vector2.Subtract(entity.pos, destination));
+            var dir = Vector2.Normalize(Vector2.Subtract(destination, entity.pos));
 
-            entity.pos = Vector2.Add(entity.pos,  dir*velocity);
+
+            entity.pos += dir * velocity;
+            //entity.pos = Vector2.Add(entity.pos,  dir*velocity);
         }
     }
 }

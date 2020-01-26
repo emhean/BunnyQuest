@@ -54,6 +54,8 @@ namespace BunnyQuest.ECS
 
             UpdateWorldCollision(8 * 32, 8 * 32); // TODO: Fix this or implement method somewhere else?
             UpdateCollision();
+
+            enemy_movement();
         }
 
         public void Render(SpriteBatch spriteBatch)
@@ -92,7 +94,7 @@ namespace BunnyQuest.ECS
 
         public void enemy_movement()
         {
-            Vector2 dest = new Vector2();
+            Vector2 dest = Vector2.Zero;
 
             for (int i = 0; i< entities.Count; i++)
             {
