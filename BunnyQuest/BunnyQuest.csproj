@@ -51,6 +51,7 @@
     <Compile Include="ECS\Components\CmpStats.cs" />
     <Compile Include="ECS\Entity.cs" />
     <Compile Include="ECS\System.cs" />
+    <Compile Include="Entities\Emitter.cs" />
     <Compile Include="Entities\EvilBunny.cs" />
     <Compile Include="Entities\Player.cs" />
     <Compile Include="Entities\Tree.cs" />
