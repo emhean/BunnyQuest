@@ -115,3 +115,9 @@
 /processorParam:TextureFormat=Color
 /build:etc/fk.png
 
+#begin sfx/bloodsplatter.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:sfx/bloodsplatter.wav
+
