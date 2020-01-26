@@ -162,7 +162,17 @@ namespace BunnyQuest.ECS
 
                             if (collider.GetsPushed && side != COLLISION_SIDE.None)
                             {
-                                if (entities[i].GetComponent<CmpStats> == entities[j].GetComponent<CmpStats>)
+                                var first_unit = entities[i].GetComponent<CmpStats>();
+                                var second_unit = entities[j].GetComponent<CmpStats>();
+
+                                if ((first_unit != null) && (second_unit != null))
+                                {
+                                    if (first_unit.iframes <= 0)
+                                    {
+                                        first_unit.TakeDamage(second_unit.damage);
+                                        first_unit.iframes = 1;
+                                    }
+                                }
 
 
                                 if (side == COLLISION_SIDE.Top)
