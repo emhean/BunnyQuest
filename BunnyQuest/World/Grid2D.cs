@@ -53,9 +53,9 @@
 
             if (height == width)
             {
-                for (int x = 0; x < width; x++)
+                for (int x = 0; x < height; x++)
                 {
-                    for (int y = 0; y < height; y++)
+                    for (int y = 0; y < width; y++)
                     {
 
                         new_matrix[height - 1 - y][x] = grid[y][x];
