@@ -6,7 +6,10 @@ using System;
 
 namespace BunnyQuest.World
 {
-    class Map
+    /// <summary>
+    /// A two-dimensional map of tiles.
+    /// </summary>
+    class Map2D
     {
         /// <summary>
         /// A grid of Tiles. TileGrid inherits from the generic Grid class.
@@ -16,9 +19,13 @@ namespace BunnyQuest.World
 
         public int mapWidth;
         public int mapHeight => mapWidth; // cus itsa s'queer
+
+        /// <summary>
+        /// The background music.
+        /// </summary>
         public SoundEffectInstance bgm;
 
-        public Map(ContentManager content, int size, bool randomize = false)
+        public Map2D(ContentManager content, int size, bool randomize = false)
         {
             this.mapWidth = size; // To keep the map size for logic
             this.tileGrid = new TileGrid(size);

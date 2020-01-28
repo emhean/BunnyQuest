@@ -23,7 +23,7 @@ namespace BunnyQuest
         int camera_entity;
         Entities.Player player;
         ECS.System system;
-        Map map;
+        Map2D map;
 
         Texture2D tex_background;
         Texture2D tex_carrot;
@@ -40,7 +40,7 @@ namespace BunnyQuest
             camera = new Camera.Camera2DControlled();
             camera.Zoom = 1.5f;
 
-            map = new Map(Content, 16);
+            map = new Map2D(Content, 16);
             system = new ECS.System(map);
 
 

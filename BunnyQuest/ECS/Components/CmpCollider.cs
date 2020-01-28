@@ -22,7 +22,7 @@ namespace BunnyQuest.ECS.Components
             this.tex_px = debug_texture;
         }
 
-        public override void Update(float delta)
+        public void UpdateColliderPosition()
         {
             rect.X = (int)this.entity.pos.X;
             rect.Y = (int)this.entity.pos.Y;
@@ -33,6 +33,11 @@ namespace BunnyQuest.ECS.Components
             rect.Y += offset.Y;
             rect.Width += offset.Width;
             rect.Height += offset.Height;
+        }
+
+        public override void Update(float delta)
+        {
+            UpdateColliderPosition();
 
             base.Update(delta);
         }
@@ -42,13 +47,25 @@ namespace BunnyQuest.ECS.Components
             spriteBatch.Draw(tex_px, rect, Color.Red * 0.33f);
         }
 
+        /// <summary>
+        /// Sets the position of the entity and the collider.
+        /// </summary>
         public void SetPosition(int x, int y)
         {
             entity.pos.X = x;
             entity.pos.Y = y;
 
-            rect.X = x;
-            rect.Y = y;
+            UpdateColliderPosition();
+        }
+        /// <summary>
+        /// Sets the position of the entity and the collider.
+        /// </summary>
+        public void SetPosition(float x, float y)
+        {
+            entity.pos.X = x;
+            entity.pos.Y = y;
+
+            UpdateColliderPosition();
         }
     }
 }
