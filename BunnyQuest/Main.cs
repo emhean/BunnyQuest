@@ -300,6 +300,7 @@ namespace BunnyQuest
             {
                 var bb_collider = bb.GetComponent<CmpCollider>();
                 var bb_screenPos = GetEntityScreenPosition(bb);
+
                 var rect = new Rectangle((int)bb_screenPos.X, (int)bb_screenPos.Y, bb_collider.rect.Width, bb_collider.rect.Height);
 
                 //Rectangle c_rect = new Rectangle(
@@ -333,19 +334,8 @@ namespace BunnyQuest
                     return;
                 }
 
-                // TODO: Fix screen selection so that it works in all four directions
-                //if (cursor_rect.X < cursorSelection_rect.X)
-                //    cursorSelection_rect.Width = cursor_rect.X - cursorSelection_rect.X;
-                //else
-                //{
-                //    //cursorSelection_rect.X = cursor_rect.X;
-                //    cursorSelection_rect.Width = 64; //cursorSelection_rect.X - cursor_rect.X;
-                //}
-                //if (cursor_rect.Y < cursorSelection_rect.Y)
-                //    cursorSelection_rect.Height = cursor_rect.Y - cursorSelection_rect.Y;
-                //else
-                //    cursorSelection_rect.Height = cursor_rect.Y;
 
+                
                 cursorSelection_rect.Width = cursor_rect.X - cursorSelection_rect.X;
                 cursorSelection_rect.Height = cursor_rect.Y - cursorSelection_rect.Y;
             }
@@ -431,6 +421,8 @@ namespace BunnyQuest
             #region User Interface stuff
             spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.PointClamp, null, null, null, null);
 
+
+            Window.Title = cursorSelection_rect.ToString();
             if(cursorSelection_rect != Rectangle.Empty)
             {
                 spriteBatch.Draw(tex_pixel, cursorSelection_rect, Color.Blue * 0.2f);
