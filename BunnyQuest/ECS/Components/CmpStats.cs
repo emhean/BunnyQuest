@@ -8,11 +8,11 @@ namespace BunnyQuest.ECS.Components
 {
     class CmpStats : Component
     {
-        public CmpStats(Entity owner, int in_health, int in_damage) : base(owner)
+        public CmpStats(Entity owner, int health, int damage, bool isFriendly) : base(owner)
         {
-            health = in_health;
-            damage = in_damage;
-            health_cap = in_health;
+            this.health = health;
+            this.damage = damage;
+            this.health_cap = health;
         }
 
         public int health;
@@ -20,6 +20,7 @@ namespace BunnyQuest.ECS.Components
         public int damage;
         public int damage_reduction;
 
+        public bool isFriendly;
         public float iframes;
 
         public override void Update(float delta)

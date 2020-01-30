@@ -10,6 +10,11 @@ namespace BunnyQuest.ECS
         public Vector2 pos;
         public Vector2 size;
 
+        public Vector2 GetCenterPosition()
+        {
+            return pos + (size / 2);
+        }
+
         /// <summary>
         /// If true, System will place this entity instance into the expired list and remove it from the entity list.
         /// </summary>

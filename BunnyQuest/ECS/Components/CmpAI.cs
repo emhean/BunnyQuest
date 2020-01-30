@@ -1,26 +1,20 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-/// <summary>
-/// The AI component contains a velocity and a destination.
-/// The velocity is set when the component is created and can be updated later if so desired.
-/// The destination is continuously updated in System.cs, as the enemies' movement depends on where the player is.
-/// 
-/// Patrol points are now active
-/// they should hopefully work
-/// </summary>
-
-
 
 namespace BunnyQuest.ECS.Components
 {
-    class CmpAi : Component
+    /// <summary>
+    /// The AI component contains a velocity and a destination.
+    /// The velocity is set when the component is created and can be updated later if so desired.
+    /// The destination is continuously updated in System.cs, as the enemies' movement depends on where the player is.
+    /// 
+    /// Patrol points are now active
+    /// they should hopefully work
+    /// </summary>
+    class CmpAI : Component
     {
-        public CmpAi(Entity owner, Vector2 init_velocity, bool in_is_patrolling, bool in_is_chasing, List<Vector2> patrol_point_list) : base(owner)
+        public CmpAI(Entity owner, Vector2 init_velocity, bool in_is_patrolling, bool in_is_chasing, List<Vector2> patrol_point_list) : base(owner)
         {
             velocity = init_velocity;
             is_patrolling = in_is_patrolling;

@@ -69,11 +69,14 @@ namespace BunnyQuest.Camera
             return _transform;
         }
 
-        // TODO: Do at home.
-        //public Vector2 GetVector2Transformation(Vector2 vector2)
-        //{
+        public Vector2 GetVector2Transformation(GraphicsDevice graphicsDevice, Vector2 v)
+        {
+            _transform = Matrix.CreateTranslation(new Vector3(-v.X, -v.Y, 0)) *
+                                         Matrix.CreateRotationZ(_rotation) *
+                                         Matrix.CreateScale(new Vector3(_zoom, _zoom, 1)) *
+                                         Matrix.CreateTranslation(new Vector3(graphicsDevice.Viewport.Width * 0.5f, graphicsDevice.Viewport.Height * 0.5f, 0));
 
-        //    Matrix.CreateTranslation()
-        //}
+            return new Vector2(_transform.Translation.X, _transform.Translation.Y);
+        }
     }
 }

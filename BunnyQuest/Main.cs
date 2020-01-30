@@ -1,4 +1,6 @@
-﻿using BunnyQuest.ECS.Components;
+﻿using BunnyQuest.ECS;
+using BunnyQuest.ECS.Components;
+using BunnyQuest.Entities;
 using BunnyQuest.World;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -15,24 +17,32 @@ namespace BunnyQuest
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        KeyboardState previous_keyboardState;
-        KeyboardState keyboardState;
-
+        KeyboardState keyboardState, prev_keyboardState;
+        MouseState mouseState, prev_mouseState;
+        Rectangle cursor_rect;
+        Vector2 cursor_pos;
 
         Camera.Camera2DControlled camera;
         int camera_entity;
-        Entities.Player player;
+        AlphaBunny player;
         ECS.System system;
         Map2D map;
 
+        Texture2D tex_pixel;
         Texture2D tex_background;
         Texture2D tex_carrot;
+
+        Texture2D tex_changedBunny_marker;
+        bool flag_changedBunny_marker;
+        float t_changedBunny_marker = 2;
+        float sin_marker;
 
         public Main()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             Window.AllowUserResizing = true;
+            IsMouseVisible = true;
         }
 
         protected override void Initialize()
@@ -43,7 +53,8 @@ namespace BunnyQuest
             map = new Map2D(Content, 16);
             system = new ECS.System(map);
 
-
+            mouseState = Mouse.GetState();
+            cursor_rect = new Rectangle(mouseState.X, mouseState.Y, 1, 1);
 
             base.Initialize();
         }
@@ -53,32 +64,41 @@ namespace BunnyQuest
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            tex_pixel = Content.Load<Texture2D>("etc/pixel");
             tex_changedBunny_marker = Content.Load<Texture2D>("etc/hand");
             tex_carrot = Content.Load<Texture2D>("spritesheets/carrot");
             tex_background = Content.Load<Texture2D>("etc/fk");
 
-            system.AddEntity(new Entities.Player(0, this.Content)
+
+            system.AddEntity(new AlphaBunny(0, this.Content)
             {
                 size = new Vector2(32, 32),
                 pos = new Vector2(240, 240)
             });
-            system.AddEntity(new Entities.Player(1, this.Content)
+
+            this.player = (AlphaBunny)system.GetEntityFromIndex(0);
+
+
+            for(int i = 2; i < 10; ++i)
             {
-                size = new Vector2(32, 32),
-                pos = new Vector2(277, 240)
-            });
-
-            this.player = (Entities.Player)system.GetEntityFromIndex(0);
-
-            var enemy = new Entities.EvilBunny(11, this.Content)
-            {
-                pos = new Vector2(96, 32),
-                size = new Vector2(32, 32)
-            };
-            system.AddEntity(enemy);
+                var bb = new BetaBunny(i, this.Content)
+                {
+                    size = new Vector2(32, 32),
+                    pos = new Vector2(101 + (32 * i), 450)
+                };
+                system.AddEntity(bb);
+            }
 
 
-            for(int i = 0; i < 4; ++i)
+            //var enemy = new Entities.EvilBunny(11, this.Content)
+            //{
+            //    pos = new Vector2(96, 32),
+            //    size = new Vector2(32, 32)
+            //};
+            //system.AddEntity(enemy);
+
+
+            for (int i = 0; i < 4; ++i)
                 system.AddEntity(new Entities.Tree(99 + i, Content) { pos = new Vector2(224 + (32 * i), 100) });
 
             for (int i = 0; i < 4; ++i)
@@ -88,17 +108,12 @@ namespace BunnyQuest
 
         protected override void UnloadContent() { }
 
-        Texture2D tex_changedBunny_marker;
-        bool flag_changedBunny_marker;
-        float t_changedBunny_marker = 2;
-        float sin_marker;
-
         private void ChangeBunny()
         {
             if(player.UUID == 1)
-                this.player = (Entities.Player)system.GetEntity(0);
+                this.player = (AlphaBunny)system.GetEntity(0);
             else if(player.UUID == 0)
-                this.player = (Entities.Player)system.GetEntity(1);
+                this.player = (AlphaBunny)system.GetEntity(1);
 
 
             t_changedBunny_marker = 2;
@@ -111,7 +126,7 @@ namespace BunnyQuest
 
                 var ent = system.GetEntity(i);
 
-                if (ent is Entities.Player p)
+                if (ent is AlphaBunny p)
                 {
                     player = p;
                     t_changedBunny_marker = 2;
@@ -120,7 +135,16 @@ namespace BunnyQuest
             }
         }
 
-        private ECS.Entity GetCameraTarget() => system.GetEntityFromIndex(camera_entity);
+        private void FollowPlayer(BetaBunny bb)
+        {
+            bb.Follow(player);
+        }
+
+        private Entity GetCameraTarget()
+        {
+            return system.GetEntityFromIndex(camera_entity);
+        }
+
         private void SetCameraTarget()
         {
             camera_entity += 1;
@@ -138,17 +162,25 @@ namespace BunnyQuest
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            keyboardState = Keyboard.GetState(); // Get state of keyboard (pressed button etc)
-            if (keyboardState.IsKeyDown(Keys.Escape))
-                Exit();
+            // Get state of keyboard (pressed buttons etc)
+            keyboardState = Keyboard.GetState(); 
 
+            // Get state of mouse and set to position and rectangle (used for screen clicking)
+            mouseState = Mouse.GetState();
+            cursor_pos.X = mouseState.X;
+            cursor_pos.Y = mouseState.Y;
+            cursor_rect.X = mouseState.X;
+            cursor_rect.Y = mouseState.Y;
+
+            if (keyboardState.IsKeyDown(Keys.Escape))
+                Exit(); // Close the game
 
             if (player.expired)
             {
-                // If player controlled bunny is dead we find the next one.... hopefully
+                // If player controlled alpha bunny is dead we find the next one.... hopefully
                 for (int i = 0; i < system.GetEntityCount(); ++i)
                 {
-                    if (system.GetEntityFromIndex(i) is Entities.Player p)
+                    if (system.GetEntityFromIndex(i) is AlphaBunny p)
                     {
                         if (p.expired == false)
                         {
@@ -159,11 +191,24 @@ namespace BunnyQuest
                 }
             }
 
-            if (keyboardState.IsKeyUp(Keys.Tab) && previous_keyboardState.IsKeyDown(Keys.Tab))
+            UpdateCursorSelection();
+
+            // All the beta bunnies unfollow each other
+            if (keyboardState.IsKeyDown(Keys.Tab))
             {
-                SetCameraTarget();
-                //ChangeBunny();
+                for(int i = 0; i < BetaBunny.followers.Count; ++i)
+                {
+                    BetaBunny.followers[i].Unfollow();
+                }
             }
+
+            // Left click with mouse
+            if (mouseState.LeftButton == ButtonState.Released
+                && prev_mouseState.LeftButton == ButtonState.Pressed)
+            {
+                CursorSelectionReleased();
+            }
+
 
             if(t_changedBunny_marker < 2)
             {
@@ -177,7 +222,7 @@ namespace BunnyQuest
             }
 
 
-
+            #region Keyboard movement stuff
             if (keyboardState.IsKeyDown(Keys.W)) // Up
             {
                 player.direction.Y = -1;
@@ -208,31 +253,26 @@ namespace BunnyQuest
                 player.GetComponent<CmpAnim>().IsUpdated = false;
             }
             else player.GetComponent<CmpAnim>().IsUpdated = true;
+            #endregion
 
+            #region Rotation to player direction stuff
 
+            // Rotate player
+            RotateAnimToDirection(player.GetComponent<CmpAnim>(), player.direction);
 
-            if (player.direction.X == 1 && player.direction.Y == -1)
+            // TODO: Move this into CmpAI_Follower?
+            // Rotate follower bunnies
+            foreach (BetaBunny bb in system.EnumerateEntities<BetaBunny>(1, 100))
             {
-                player.GetComponent<CmpAnim>().currentSpriteCollection = 0;
-                player.GetComponent<CmpAnim>().rotation = 0.45f;
+                if (bb.ai.State == CmpAI_Follower.STATE_CmpAI_Follower.Following)
+                {
+                    bb.anim.renderColor = Color.LightGray;
+                    RotateAnimToDirection(bb.anim, player.direction);
+                }
+                else
+                    bb.anim.renderColor = Color.Gray;
             }
-            else if (player.direction.X == -1 && player.direction.Y == -1)
-            {
-                player.GetComponent<CmpAnim>().currentSpriteCollection = 0;
-                player.GetComponent<CmpAnim>().rotation = -0.45f;
-            }
-            else if (player.direction.X == 1 && player.direction.Y == 1)
-            {
-                player.GetComponent<CmpAnim>().currentSpriteCollection = 1;
-                player.GetComponent<CmpAnim>().rotation = 0.90f;
-            }
-            else if (player.direction.X == -1 && player.direction.Y == 1)
-            {
-                player.GetComponent<CmpAnim>().currentSpriteCollection = 3;
-                player.GetComponent<CmpAnim>().rotation = -0.90f;
-            }
-            else player.GetComponent<CmpAnim>().rotation = 0f;
-
+            #endregion
 
             player.pos += (player.speed * player.direction);
 
@@ -243,10 +283,114 @@ namespace BunnyQuest
             system.Update(gameTime);
 
 
-            previous_keyboardState = keyboardState;
+            // Set previous values to values of this frame
+            prev_keyboardState = keyboardState;
+            prev_mouseState = mouseState;
+
             base.Update(gameTime);
         }
 
+
+        Rectangle cursorSelection_rect;
+        bool cursorSelection_started;
+
+        private void CursorSelectionReleased()
+        {
+            foreach (BetaBunny bb in system.EnumerateEntities<BetaBunny>(1, 100))
+            {
+                var bb_collider = bb.GetComponent<CmpCollider>();
+                var bb_screenPos = GetEntityScreenPosition(bb);
+                var rect = new Rectangle((int)bb_screenPos.X, (int)bb_screenPos.Y, bb_collider.rect.Width, bb_collider.rect.Height);
+
+                //Rectangle c_rect = new Rectangle(
+                //    cursorSelection_rect.X, 
+                //    cursorSelection_rect.Y,
+                //    cursor_rect.Width + cursorSelection_rect.Width,
+                //    cursor_rect.Height + cursorSelection_rect.Height);
+                //Rectangle c_rect = Rectangle.Union(cursor_rect, cursorSelection_rect);
+
+                if (Rectangle.Intersect(cursorSelection_rect, rect) != Rectangle.Empty)
+                {
+                    if (bb.ai.State != CmpAI_Follower.STATE_CmpAI_Follower.Following)
+                    {
+                        bb.Follow(player);
+                    }
+                }
+            }
+
+            cursorSelection_rect = Rectangle.Empty;
+        }
+
+        private void UpdateCursorSelection()
+        {
+            if (prev_mouseState.LeftButton == ButtonState.Pressed && mouseState.LeftButton == ButtonState.Pressed)
+            {
+                if(!cursorSelection_started)
+                {
+                    cursorSelection_rect.X = cursor_rect.X;
+                    cursorSelection_rect.Y = cursor_rect.Y;
+                    cursorSelection_started = true;
+                    return;
+                }
+
+                // TODO: Fix screen selection so that it works in all four directions
+                //if (cursor_rect.X < cursorSelection_rect.X)
+                //    cursorSelection_rect.Width = cursor_rect.X - cursorSelection_rect.X;
+                //else
+                //{
+                //    //cursorSelection_rect.X = cursor_rect.X;
+                //    cursorSelection_rect.Width = 64; //cursorSelection_rect.X - cursor_rect.X;
+                //}
+                //if (cursor_rect.Y < cursorSelection_rect.Y)
+                //    cursorSelection_rect.Height = cursor_rect.Y - cursorSelection_rect.Y;
+                //else
+                //    cursorSelection_rect.Height = cursor_rect.Y;
+
+                cursorSelection_rect.Width = cursor_rect.X - cursorSelection_rect.X;
+                cursorSelection_rect.Height = cursor_rect.Y - cursorSelection_rect.Y;
+            }
+            else
+            {
+                if(cursorSelection_started)
+                {
+                    CursorSelectionReleased();
+                    cursorSelection_started = false;
+                }
+            }
+        }
+
+        private Vector2 GetEntityScreenPosition(Entity entity)
+        {
+            return Vector2.Transform(entity.pos, camera.GetTransformation(GraphicsDevice));
+        }
+
+
+        private void RotateAnimToDirection(CmpAnim anim, Vector2 direction)
+        {
+            // There is probably a smarter way to do this...
+
+            if (direction.X == 1 && direction.Y == -1)
+            {
+                anim.currentSpriteCollection = 0;
+                anim.rotation = 0.45f;
+            }
+            else if (direction.X == -1 && direction.Y == -1)
+            {
+                anim.currentSpriteCollection = 0;
+                anim.rotation = -0.45f;
+            }
+            else if (direction.X == 1 && direction.Y == 1)
+            {
+                anim.currentSpriteCollection = 1;
+                anim.rotation = 0.90f;
+            }
+            else if (direction.X == -1 && direction.Y == 1)
+            {
+                anim.currentSpriteCollection = 3;
+                anim.rotation = -0.90f;
+            }
+            else anim.rotation = 0f;
+        }
 
         /// <summary>
         /// This is called when the game should draw itself.
@@ -286,6 +430,11 @@ namespace BunnyQuest
 
             #region User Interface stuff
             spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.PointClamp, null, null, null, null);
+
+            if(cursorSelection_rect != Rectangle.Empty)
+            {
+                spriteBatch.Draw(tex_pixel, cursorSelection_rect, Color.Blue * 0.2f);
+            }
 
             for(int i = 0; i < player.GetComponent<CmpStats>().health_cap; ++i)
                 spriteBatch.Draw(tex_carrot, new Vector2(25 + (24 * i), 25), Color.Black);

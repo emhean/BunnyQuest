@@ -48,6 +48,24 @@ namespace BunnyQuest.ECS
         }
 
         /// <summary>
+        /// Yields an Entity of type T.
+        /// </summary>
+        public IEnumerable<T> EnumerateEntities<T>(int index_start, int index_end) where T : Entity
+        {
+            if (index_end > entities.Count)
+                index_end = entities.Count;
+
+            if (index_start > index_end)
+                throw new Exception("Why start at an index that is outside the end?");
+
+            for(int i = index_start; i < index_end; ++i)
+            {
+                if (entities[i] != null && entities[i] is T)
+                    yield return (T)entities[i];
+            }
+        }
+
+        /// <summary>
         /// Creates an instance of Entity. Does NOT add it to the list.
         /// </summary>
         public Entity CreateEntity()
@@ -72,7 +90,7 @@ namespace BunnyQuest.ECS
             entities_expired.Add(entity);
             entities.Remove(entity);
         }
-        
+
         /// <summary>
         /// Gets the total entity count.
         /// </summary>
@@ -161,47 +179,48 @@ namespace BunnyQuest.ECS
                         var other = entities[j].GetComponent<CmpCollider>();
                         if (other != null)
                         {
-                            Rectangle intersection = Rectangle.Intersect(collider.rect, other.rect);
+                            // This continues the iteration and skips collision if both 
+                            // are same type and collider does not collide with same types
+                            if ((collider.Type == other.Type) && collider.GetsPushedBySameType == false)
+                                continue;
+                            // This continues the iteration and skips collision of either has filter of that type
+                            if ((collider.TypeFilter != null && collider.HasTypeInFilter(other.Type))
+                                || (other.TypeFilter != null && other.HasTypeInFilter(collider.Type)))
+                                continue;
+                            
 
-                            COLLISION_SIDE side = GetIntersectionSide(collider.rect, other.rect);
-
-                            if (collider.GetsPushed && side != COLLISION_SIDE.None)
+                            if (ResolveCollision(collider, other))
                             {
                                 var first_unit = entities[i].GetComponent<CmpStats>();
                                 var second_unit = entities[j].GetComponent<CmpStats>();
-
                                 if ((first_unit != null) && (second_unit != null))
                                 {
-                                    if (first_unit.iframes <= 0)
+                                    // True if one is friendly and the other is not, so that two friendly cannot hurt each other.
+                                    bool isEither = (first_unit.isFriendly == true && second_unit.isFriendly == false)
+                                        || (first_unit.isFriendly == false && second_unit.isFriendly == true);
+
+                                    if(isEither)
                                     {
-                                        first_unit.TakeDamage(second_unit.damage);
-                                        first_unit.iframes = 1;
+                                        if (first_unit.isFriendly)
+                                        {
+                                            if (first_unit.iframes <= 0)
+                                            {
+                                                first_unit.TakeDamage(second_unit.damage);
+                                                first_unit.iframes = 1;
+                                            }
+                                        }
+                                        else // second_unit is friendly therefore first_unit is the enemy
+                                        {
+                                            if (second_unit.iframes <= 0)
+                                            {
+                                                second_unit.TakeDamage(first_unit.damage);
+                                                second_unit.iframes = 1;
+                                            }
+                                        }
                                     }
                                 }
-
-                                if (side == COLLISION_SIDE.Top)
-                                {
-                                    //entities[i].pos.Y -= intersection.Height;
-                                    continue;
-                                }
-                                else if (side == COLLISION_SIDE.Bottom)
-                                {
-                                    //entities[i].pos.Y += (intersection.Height);
-                                    continue;
-                                }
-
-                                if (side == COLLISION_SIDE.Left)
-                                {
-                                    //entities[i].pos.X -= intersection.Width;
-                                    continue;
-                                }
-                                else if (side == COLLISION_SIDE.Right)
-                                {
-                                    //entities[i].pos.X += intersection.Width;
-                                    continue;
-                                }
                             }
-                        }
+                        } // end of (other != null) 
                     }
                 }
             }
@@ -348,7 +367,7 @@ namespace BunnyQuest.ECS
             // Sets destination of AI to player's position.
             for (int i = 0; i < entities.Count; i++)
             {
-                if (entities[i] is Entities.Player p)
+                if (entities[i] is Entities.AlphaBunny p)
                 {
                     dest = entities[i].pos;
                     break;
@@ -358,7 +377,7 @@ namespace BunnyQuest.ECS
             // Then we give the position to each enemy with an AI component. Their movement is managed within the class
             for (int i = 0; i < entities.Count; i++)
             {
-                var ai = entities[i].GetComponent<CmpAi>();
+                var ai = entities[i].GetComponent<CmpAI>();
 
                 if (ai != null)
                 {

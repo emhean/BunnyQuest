@@ -8,6 +8,23 @@ namespace BunnyQuest.ECS.Components
         public Rectangle rect;
         public Rectangle offset;
 
+        /// <summary>
+        /// A filter of types that is irrelevant to this collider.
+        /// </summary>
+        public string[] TypeFilter;
+        /// <summary>
+        /// Returns true if type exists in this colliders type filter.
+        /// </summary>
+        public bool HasTypeInFilter(string type)
+        {
+            for (int i = 0; i < TypeFilter.Length; ++i)
+                if (TypeFilter[i] == type)
+                    return true;
+            return false;
+        }
+
+        public string Type = "null";
+        public bool GetsPushedBySameType = false;
         public bool GetsPushed = false;
 
         Texture2D tex_px; // Debug texture
