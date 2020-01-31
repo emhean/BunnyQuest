@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Collections.Generic;
 
 namespace BunnyQuest
 {
@@ -202,14 +203,6 @@ namespace BunnyQuest
                 }
             }
 
-            // Left click with mouse
-            if (mouseState.LeftButton == ButtonState.Released
-                && prev_mouseState.LeftButton == ButtonState.Pressed)
-            {
-                CursorSelectionReleased();
-            }
-
-
             if(t_changedBunny_marker < 2)
             {
                 t_changedBunny_marker += (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -293,57 +286,112 @@ namespace BunnyQuest
 
         Rectangle cursorSelection_rect;
         bool cursorSelection_started;
+        Vector2 cursorSelection_startPos;
 
-        private void CursorSelectionReleased()
+        private Rectangle GetEntityScreenIntersection(Entity entity, Rectangle screen_rect)
         {
-            foreach (BetaBunny bb in system.EnumerateEntities<BetaBunny>(1, 100))
+            var screenPos = GetEntityScreenPosition(entity);
+            var ent_rect = new Rectangle((int)screenPos.X, (int)screenPos.Y, (int)entity.size.X, (int)entity.size.Y);
+
+            return Rectangle.Intersect(ent_rect, screen_rect);
+        }
+
+        /// <summary>
+        /// Enumerate the entities and get those who collide with the cursor
+        /// </summary>
+        private IEnumerable<Entity> EnumerateCursorCollisioners(Rectangle cursor_rect)
+        {
+            Entity ent;
+            for(int i = 0; i < system.GetEntityCount(); ++i)
             {
-                var bb_collider = bb.GetComponent<CmpCollider>();
-                var bb_screenPos = GetEntityScreenPosition(bb);
+                ent = system.GetEntityFromIndex(i);
 
-                var rect = new Rectangle((int)bb_screenPos.X, (int)bb_screenPos.Y, bb_collider.rect.Width, bb_collider.rect.Height);
-
-                //Rectangle c_rect = new Rectangle(
-                //    cursorSelection_rect.X, 
-                //    cursorSelection_rect.Y,
-                //    cursor_rect.Width + cursorSelection_rect.Width,
-                //    cursor_rect.Height + cursorSelection_rect.Height);
-                //Rectangle c_rect = Rectangle.Union(cursor_rect, cursorSelection_rect);
-
-                if (Rectangle.Intersect(cursorSelection_rect, rect) != Rectangle.Empty)
-                {
-                    if (bb.ai.State != CmpAI_Follower.STATE_CmpAI_Follower.Following)
-                    {
-                        bb.Follow(player);
-                    }
-                }
+                if (GetEntityScreenIntersection(ent, cursor_rect) != Rectangle.Empty)
+                    yield return ent;
             }
 
-            cursorSelection_rect = Rectangle.Empty;
+            // Used to be:
+            //foreach (BetaBunny bb in system.EnumerateEntities<BetaBunny>(1, 100))
+            //{
+            //    if (GetEntityScreenIntersection(bb, cursor_rect) != Rectangle.Empty)
+            //    {
+            //        if (bb.ai.State != CmpAI_Follower.STATE_CmpAI_Follower.Following)
+            //        {
+            //            bb.Follow(player);
+            //        }
+            //    }
+            //}
         }
 
         private void UpdateCursorSelection()
         {
-            if (prev_mouseState.LeftButton == ButtonState.Pressed && mouseState.LeftButton == ButtonState.Pressed)
+            Window.Title = cursorSelection_rect.ToString();
+
+            if (prev_mouseState.RightButton == ButtonState.Pressed
+                && mouseState.RightButton == ButtonState.Released)
+            {
+                // Enumerate and get those who collide with cursor
+                foreach (var e in EnumerateCursorCollisioners(cursor_rect))
+                {
+                    if (e is BetaBunny bb) // Cast those of type BetaBunny
+                    {
+                        // Those who got right clicked will unfollow.
+                        if (bb.ai.State == CmpAI_Follower.STATE_CmpAI_Follower.Following)
+                        {
+                            bb.Unfollow();
+                        }
+                    }
+                }
+            }
+
+            if (prev_mouseState.LeftButton == ButtonState.Pressed
+                && mouseState.LeftButton == ButtonState.Pressed)
             {
                 if(!cursorSelection_started)
                 {
-                    cursorSelection_rect.X = cursor_rect.X;
-                    cursorSelection_rect.Y = cursor_rect.Y;
+                    cursorSelection_startPos = cursor_pos;
                     cursorSelection_started = true;
                     return;
                 }
 
-
-                
-                cursorSelection_rect.Width = cursor_rect.X - cursorSelection_rect.X;
-                cursorSelection_rect.Height = cursor_rect.Y - cursorSelection_rect.Y;
+                #region This code handles the cursor selection rectangle
+                if (cursor_pos.Y > cursorSelection_startPos.Y) // Selection is below start pos
+                {
+                    if (cursor_pos.X > cursorSelection_startPos.X)// Cursor is to the right of start position
+                    {
+                        cursorSelection_rect.X = (int)cursorSelection_startPos.X;
+                        cursorSelection_rect.Y = (int)cursorSelection_startPos.Y;
+                        cursorSelection_rect.Width = cursor_rect.X - cursorSelection_rect.X;
+                        cursorSelection_rect.Height = cursor_rect.Y - cursorSelection_rect.Y;
+                    }
+                    else if (cursor_pos.X < cursorSelection_startPos.X)// Cursor is to the left of start position
+                    {
+                        //cursorSelection_rect.X = (int)cursor_pos.X;
+                        //cursorSelection_rect.Y = (int)cursor_pos.Y;
+                        //cursorSelection_rect.Width = (int)cursorSelection_startPos.X - cursor_rect.X;
+                        //cursorSelection_rect.Height = Math.Abs((int)cursorSelection_startPos.Y - cursor_rect.Y);
+                    }
+                }
+                else if(cursor_pos.Y < cursorSelection_startPos.Y) // Selection is above the start position
+                {
+                }
+                #endregion
             }
             else
             {
                 if(cursorSelection_started)
                 {
-                    CursorSelectionReleased();
+                    // Same as when enumerating the cursor_rect except this time we enumerate the selection rectangle
+                    foreach (var e in EnumerateCursorCollisioners(cursorSelection_rect))
+                    {
+                        if(e is BetaBunny bb) // Cast entity if it's a BetaBunny. Otherwise tree's and shit will follow us.
+                        {
+                            if (bb.ai.State != CmpAI_Follower.STATE_CmpAI_Follower.Following)
+                                bb.Follow(player);
+                        }
+                    }
+
+                    cursorSelection_rect = Rectangle.Empty;
                     cursorSelection_started = false;
                 }
             }
@@ -422,7 +470,6 @@ namespace BunnyQuest
             spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.PointClamp, null, null, null, null);
 
 
-            Window.Title = cursorSelection_rect.ToString();
             if(cursorSelection_rect != Rectangle.Empty)
             {
                 spriteBatch.Draw(tex_pixel, cursorSelection_rect, Color.Blue * 0.2f);

@@ -19,7 +19,7 @@ namespace BunnyQuest.Entities
 
         public static List<BetaBunny> followers = new List<BetaBunny>();
 
-        public void Follow(AlphaBunny alphaBunny)
+        public void Follow(Entity e)
         {
             if(followers.Count != 0)
             {
@@ -29,7 +29,7 @@ namespace BunnyQuest.Entities
             }
             else
             {
-                ai.entity_toFollow = alphaBunny;
+                ai.entity_toFollow = e;
                 followers.Add(this);
                 follower_value = followers.Count;
             }
@@ -44,16 +44,28 @@ namespace BunnyQuest.Entities
             ai.State = CmpAI_Follower.STATE_CmpAI_Follower.NoneToFollow;
             anim.renderColor = Color.Gray;
 
-            ai.entity_toFollow = null;
-            followers.Remove(this);
+            // Sets isFirst to true if they are the same instance.
+            //bool wasFirst = (followers[0].Equals(this));
 
-            if(followers.Count != 0)
+            followers.Remove(this);
+            //if (wasFirst && followers.Count != 0)
+            //{
+            //    followers[0].Follow(followers[1]);
+            //}
+            ai.entity_toFollow = null;
+
+            if (followers.Count != 0)
             {
                 for (int i = 0; i < followers.Count; ++i)
                 {
                     followers[i].follower_value = i;
                 }
             }
+        }
+
+        public void GetFollowers()
+        {
+
         }
 
         public BetaBunny(int UUID, ContentManager content) : base(UUID)
