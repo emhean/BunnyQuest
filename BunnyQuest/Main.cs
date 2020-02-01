@@ -109,6 +109,8 @@ namespace BunnyQuest
 
         protected override void UnloadContent() { }
 
+
+        // Not used
         private void ChangeBunny()
         {
             if(player.UUID == 1)
@@ -136,10 +138,7 @@ namespace BunnyQuest
             }
         }
 
-        private void FollowPlayer(BetaBunny bb)
-        {
-            bb.Follow(player);
-        }
+
 
         private Entity GetCameraTarget()
         {
@@ -155,6 +154,7 @@ namespace BunnyQuest
             t_changedBunny_marker = 0;
             flag_changedBunny_marker = true;
         }
+
 
         /// <summary>
         /// Allows the game to run logic such as updating the world,
@@ -197,10 +197,7 @@ namespace BunnyQuest
             // All the beta bunnies unfollow each other
             if (keyboardState.IsKeyDown(Keys.Tab))
             {
-                for(int i = 0; i < BetaBunny.followers.Count; ++i)
-                {
-                    BetaBunny.followers[i].Unfollow();
-                }
+                BetaBunny.AllUnfollow();
             }
 
             if(t_changedBunny_marker < 2)

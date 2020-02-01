@@ -12,62 +12,6 @@ namespace BunnyQuest.Entities
         public CmpAI_Follower ai;
         public CmpAnim anim;
 
-        /// <summary>
-        /// Don't touch this.
-        /// </summary>
-        public int follower_value;
-
-        public static List<BetaBunny> followers = new List<BetaBunny>();
-
-        public void Follow(Entity e)
-        {
-            if(followers.Count != 0)
-            {
-                ai.entity_toFollow = followers[followers.Count - 1];
-                followers.Add(this);
-                follower_value = followers.Count;
-            }
-            else
-            {
-                ai.entity_toFollow = e;
-                followers.Add(this);
-                follower_value = followers.Count;
-            }
-
-            ai.State = CmpAI_Follower.STATE_CmpAI_Follower.Following;
-            anim.renderColor = Color.LightGray;
-        }
-
-
-        public void Unfollow()
-        {
-            ai.State = CmpAI_Follower.STATE_CmpAI_Follower.NoneToFollow;
-            anim.renderColor = Color.Gray;
-
-            // Sets isFirst to true if they are the same instance.
-            //bool wasFirst = (followers[0].Equals(this));
-
-            followers.Remove(this);
-            //if (wasFirst && followers.Count != 0)
-            //{
-            //    followers[0].Follow(followers[1]);
-            //}
-            ai.entity_toFollow = null;
-
-            if (followers.Count != 0)
-            {
-                for (int i = 0; i < followers.Count; ++i)
-                {
-                    followers[i].follower_value = i;
-                }
-            }
-        }
-
-        public void GetFollowers()
-        {
-
-        }
-
         public BetaBunny(int UUID, ContentManager content) : base(UUID)
         {
             this.AddComponent(new CmpCollider(this, content.Load<Texture2D>("etc/pixel"))
@@ -97,6 +41,105 @@ namespace BunnyQuest.Entities
 
             AddComponent(anim);
             AddComponent(ai);
+        }
+
+
+
+
+        public Entity entity_toFollow;
+
+
+        public void SetState(CmpAI_Follower.STATE_CmpAI_Follower state)
+        {
+            if(state == CmpAI_Follower.STATE_CmpAI_Follower.Following)
+            {
+                anim.renderColor = Color.LightGray;
+            }
+            else if (state == CmpAI_Follower.STATE_CmpAI_Follower.NoneToFollow)
+            {
+                anim.renderColor = Color.Aqua;
+            }
+            else if (state == CmpAI_Follower.STATE_CmpAI_Follower.Separated)
+            {
+                anim.renderColor = Color.DarkRed;
+            }
+        }
+
+
+        /// <summary>
+        /// Don't touch this.
+        /// </summary>
+        public int follower_value;
+
+        public static List<BetaBunny> followers = new List<BetaBunny>();
+
+        public static void AllUnfollow()
+        {
+            for (int i = 0; i < followers.Count; ++i)
+            {
+                followers[i].Unfollow();
+            }
+        }
+
+        void AddToFollowerList()
+        {
+            followers.Add(this);
+            follower_value = followers.Count;
+        }
+
+        public void Follow(Entity e)
+        {
+            if (followers.Count != 0)
+            {
+                // Sets the entity to follow to the last one in list.
+                ai.entity_toFollow = followers[followers.Count - 1];
+
+                AddToFollowerList();
+            }
+            else
+            {
+                ai.entity_toFollow = e;
+
+                AddToFollowerList();
+            }
+
+            ai.State = CmpAI_Follower.STATE_CmpAI_Follower.Following;
+            anim.renderColor = Color.LightGray;
+        }
+
+        public void Unfollow()
+        {
+            ai.State = CmpAI_Follower.STATE_CmpAI_Follower.NoneToFollow;
+            anim.renderColor = Color.Gray;
+
+            // Sets isFirst to true if they are the same instance.
+            //bool wasFirst = (followers[0].Equals(this));
+
+
+            int myIndex = followers.IndexOf(this);
+            if (followers.Count >= 1)
+            {
+                for (int i = myIndex; i < followers.Count; ++i)
+                {
+                    followers[i].Unfollow();
+                }
+            }
+
+
+            followers.Remove(this);
+            ai.entity_toFollow = null;
+
+            if (followers.Count != 0)
+            {
+                for (int i = 0; i < followers.Count; ++i)
+                {
+                    followers[i].follower_value = i;
+                }
+            }
+        }
+
+        public void GetFollowers()
+        {
         }
     }
 }

@@ -3,6 +3,7 @@ using BunnyQuest.ECS.Components;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 
 namespace BunnyQuest.Entities
 {
@@ -36,6 +37,25 @@ namespace BunnyQuest.Entities
                 renderColor = Color.Pink
             };
             AddComponent(anim);
+        }
+
+
+
+
+        public List<BetaBunny> followers = new List<BetaBunny>();
+
+
+        public void AddFollower(BetaBunny betaBunny)
+        {
+
+
+            betaBunny.ai.State = CmpAI_Follower.STATE_CmpAI_Follower.Following;
+            betaBunny.anim.renderColor = Color.LightGray;
+        }
+
+        public void RemoveFollower(BetaBunny betaBunny)
+        {
+
         }
     }
 }
