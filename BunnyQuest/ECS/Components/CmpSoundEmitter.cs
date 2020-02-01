@@ -17,11 +17,18 @@ namespace BunnyQuest.ECS.Components
 
         public void EmitSound(string sfx_name)
         {
-            instances.Add(soundEffects[sfx_name].CreateInstance());
+            var inst = soundEffects[sfx_name].CreateInstance();
+            inst.Play();
+            instances.Add(inst);
         }
 
         public override void Update(float delta)
         {
+            for(int i = 0; i < instances.Count; ++i)
+            {
+                if (instances[i].State == SoundState.Stopped)
+                    instances.RemoveAt(i);
+            }
         }
     }
 }
