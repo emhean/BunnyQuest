@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using System.Collections.Generic;
 
 namespace BunnyQuest.ECS
@@ -20,6 +21,7 @@ namespace BunnyQuest.ECS
         /// </summary>
         public bool expired;
 
+        public Entity(int UUID, ContentManager contentManager) : this(UUID) { }
         public Entity(int UUID)
         {
             this.UUID = UUID;
