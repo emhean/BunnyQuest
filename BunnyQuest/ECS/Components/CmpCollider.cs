@@ -65,6 +65,22 @@ namespace BunnyQuest.ECS.Components
         }
 
         /// <summary>
+        /// Prevents the entity to move outside the boundaries of the map.
+        /// </summary>
+        public void PlaceWithinBounds(int xStart, int xEnd, int yStart, int yEnd)
+        {
+            if (rect.X < xStart)
+                SetX(0);
+            else if (rect.X + rect.Width > xEnd)
+                SetX(xEnd - rect.Width);
+
+            if (rect.Y < yStart)
+                SetY(0);
+            else if (rect.Y + rect.Height > yEnd)
+                SetY(yEnd - rect.Height);
+        }
+
+        /// <summary>
         /// Sets the position of the entity and the collider.
         /// </summary>
         public void SetPosition(int x, int y)
@@ -74,6 +90,25 @@ namespace BunnyQuest.ECS.Components
 
             UpdateColliderPosition();
         }
+
+        /// <summary>
+        /// Sets the position of the entity and the collider.
+        /// </summary>
+        public void SetX(int x)
+        {
+            entity.pos.X = x;
+            UpdateColliderPosition();
+        }
+
+        /// <summary>
+        /// Sets the position of the entity and the collider.
+        /// </summary>
+        public void SetY(int y)
+        {
+            entity.pos.Y = y;
+            UpdateColliderPosition();
+        }
+
         /// <summary>
         /// Sets the position of the entity and the collider.
         /// </summary>

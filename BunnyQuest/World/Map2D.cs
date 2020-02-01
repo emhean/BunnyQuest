@@ -17,7 +17,14 @@ namespace BunnyQuest.World
         public TileGrid tileGrid;
         public TileSheet tileSheet;
 
+        /// <summary>
+        /// Map width in tiles.
+        /// </summary>
         public int mapWidth;
+
+        /// <summary>
+        /// Map height in tiles.
+        /// </summary>
         public int mapHeight => mapWidth; // cus itsa s'queer
 
         /// <summary>

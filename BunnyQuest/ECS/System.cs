@@ -154,11 +154,11 @@ namespace BunnyQuest.ECS
         {
             for (int i = 0; i < entities.Count; ++i)
             {
-                CheckMapBoundsCollision(entities[i]);
-
                 var collider = entities[i].GetComponent<CmpCollider>();
                 if (collider != null)
                 {
+                    collider.PlaceWithinBounds(0, map.mapWidth * 32, 0, map.mapHeight * 32);
+
                     foreach (var row in map.tileGrid.grid)
                     {
                         foreach (var tile in row)
@@ -335,22 +335,6 @@ namespace BunnyQuest.ECS
             }
 
             return false;
-        }
-
-        /// <summary>
-        /// Prevents the entity to move outside the boundaries of the map.
-        /// </summary>
-        public void CheckMapBoundsCollision(Entity entity)
-        {
-            if (entity.pos.X < 0)
-                entity.pos.X = 0;
-            else if (entity.pos.X + entity.size.X > map.mapWidth * 32)
-                entity.pos.X = (map.mapWidth * 32 - entity.size.X);
-
-            if (entity.pos.Y < 0)
-                entity.pos.Y = 0;
-            else if (entity.pos.Y + entity.size.Y > map.mapHeight * 32)
-                entity.pos.Y = (map.mapHeight * 32 - entity.size.Y);
         }
     }
     #endregion
