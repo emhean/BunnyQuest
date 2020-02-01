@@ -363,14 +363,28 @@ namespace BunnyQuest
                     }
                     else if (cursor_pos.X < cursorSelection_startPos.X)// Cursor is to the left of start position
                     {
-                        //cursorSelection_rect.X = (int)cursor_pos.X;
-                        //cursorSelection_rect.Y = (int)cursor_pos.Y;
-                        //cursorSelection_rect.Width = (int)cursorSelection_startPos.X - cursor_rect.X;
-                        //cursorSelection_rect.Height = Math.Abs((int)cursorSelection_startPos.Y - cursor_rect.Y);
+                        cursorSelection_rect.X = (int)cursor_pos.X;
+                        cursorSelection_rect.Y = (int)cursorSelection_startPos.Y;
+                        cursorSelection_rect.Width = (int)cursorSelection_startPos.X - cursor_rect.X;
+                        cursorSelection_rect.Height = cursor_rect.Y - cursorSelection_rect.Y;
                     }
                 }
                 else if(cursor_pos.Y < cursorSelection_startPos.Y) // Selection is above the start position
                 {
+                    if (cursor_pos.X > cursorSelection_startPos.X) // Cursor is tto the right of starting position
+                    {
+                        cursorSelection_rect.X = (int)cursorSelection_startPos.X;
+                        cursorSelection_rect.Y = (int)cursor_pos.Y;
+                        cursorSelection_rect.Width = cursor_rect.X - cursorSelection_rect.X;
+                        cursorSelection_rect.Height = (int)cursorSelection_startPos.Y - cursor_rect.Y;
+                    }
+                    else if (cursor_pos.X < cursorSelection_startPos.X) // Cursor is to the left of sartin position
+                    {
+                        cursorSelection_rect.X = (int)cursor_pos.X;
+                        cursorSelection_rect.Y = (int)cursor_pos.Y;
+                        cursorSelection_rect.Width = (int)cursorSelection_startPos.X - cursorSelection_rect.X;
+                        cursorSelection_rect.Height = (int)cursorSelection_startPos.Y - cursorSelection_rect.Y;
+                    }
                 }
                 #endregion
             }
