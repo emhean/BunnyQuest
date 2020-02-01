@@ -14,19 +14,19 @@ namespace BunnyQuest.Entities
     {
         public Emitter(int UUID) : base(UUID)
         {
-             this.AddComponent(new CmpGraphicsEmitter() )
+            this.AddComponent(new CmpParticleEmitter(this));
+            this.AddComponent(new CmpSoundEmitter(this));
         }
 
-        public Vector2 position;
-        public bool is_emitting;
+        public bool isEmitting;
 
         public void Emit()
         {
-            is_emitting = true;
+            isEmitting = true;
         }
         public void stopEmitting()
         {
-            is_emitting = false;
+            isEmitting = false;
         }
 
         
