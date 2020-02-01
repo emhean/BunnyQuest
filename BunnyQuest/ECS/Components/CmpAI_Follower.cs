@@ -7,7 +7,7 @@ namespace BunnyQuest.ECS.Components
         public enum STATE_CmpAI_Follower
         {
             NoneToFollow,
-            Separated,
+            //Separated,
             Following,
         }
 
@@ -27,6 +27,17 @@ namespace BunnyQuest.ECS.Components
         public CmpAI_Follower(Entity owner, Vector2 speed) : base(owner)
         {
             this.speed = speed;
+        }
+
+        public void SetLeader(Entity entity)
+        {
+            entity_toFollow = entity;
+            //this.state = STATE_CmpAI_Follower.Following;
+        }
+
+        public void RemoveLeader()
+        {
+            //this.state = STATE_CmpAI_Follower.NoneToFollow;
         }
 
         public Entity entity_toFollow;
@@ -61,7 +72,8 @@ namespace BunnyQuest.ECS.Components
 
             if(dist > distance_whenToSeparate) // if distance is big enough to separate
             {
-                state = STATE_CmpAI_Follower.Separated;
+                //state = STATE_CmpAI_Follower.Separated;
+                state = STATE_CmpAI_Follower.NoneToFollow;
             }
             else if (dist > distance_whenToFollow) // if distance is big enough to follow but not separate
             {

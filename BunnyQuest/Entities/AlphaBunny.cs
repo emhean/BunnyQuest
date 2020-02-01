@@ -47,15 +47,56 @@ namespace BunnyQuest.Entities
 
         public void AddFollower(BetaBunny betaBunny)
         {
+            if(followers.Count == 0)
+                betaBunny.ai.entity_toFollow = this;
+            else
+            {
+                betaBunny.ai.entity_toFollow = followers[followers.Count - 1];
+            }
 
+            betaBunny.SetState(CmpAI_Follower.STATE_CmpAI_Follower.Following);
 
-            betaBunny.ai.State = CmpAI_Follower.STATE_CmpAI_Follower.Following;
-            betaBunny.anim.renderColor = Color.LightGray;
+            followers.Add(betaBunny);
         }
 
         public void RemoveFollower(BetaBunny betaBunny)
         {
+            if (followers.Count > 1)
+            {
+                int index = followers.IndexOf(betaBunny);
 
+                var foo = new List<BetaBunny>();
+
+                for (int i = index; i < followers.Count; i++)
+                {
+                    followers[i].SetState(CmpAI_Follower.STATE_CmpAI_Follower.NoneToFollow);
+                    followers[i].ai.entity_toFollow = null;
+                    foo.Add(followers[i]);
+                }
+
+                foreach (var bb in foo)
+                    followers.Remove(bb);
+            }
+            else
+            {
+                betaBunny.ai.entity_toFollow = null;
+                betaBunny.SetState(CmpAI_Follower.STATE_CmpAI_Follower.NoneToFollow);
+
+                followers.Remove(betaBunny);
+            }
+
+
+        }
+
+        public void RemoveAllFollowers()
+        {
+            for(int i = 0; i < followers.Count; ++i)
+            {
+                followers[i].ai.entity_toFollow = null;
+                followers[i].SetState(CmpAI_Follower.STATE_CmpAI_Follower.NoneToFollow);
+            }
+
+            followers.Clear();
         }
     }
 }

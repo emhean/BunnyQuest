@@ -197,7 +197,7 @@ namespace BunnyQuest
             // All the beta bunnies unfollow each other
             if (keyboardState.IsKeyDown(Keys.Tab))
             {
-                BetaBunny.AllUnfollow();
+                player.RemoveAllFollowers();
             }
 
             if(t_changedBunny_marker < 2)
@@ -335,7 +335,7 @@ namespace BunnyQuest
                         // Those who got right clicked will unfollow.
                         if (bb.ai.State == CmpAI_Follower.STATE_CmpAI_Follower.Following)
                         {
-                            bb.Unfollow();
+                            player.RemoveFollower(bb);
                         }
                     }
                 }
@@ -398,7 +398,7 @@ namespace BunnyQuest
                         if(e is BetaBunny bb) // Cast entity if it's a BetaBunny. Otherwise tree's and shit will follow us.
                         {
                             if (bb.ai.State != CmpAI_Follower.STATE_CmpAI_Follower.Following)
-                                bb.Follow(player);
+                                player.AddFollower(bb); //bb.Follow(player);
                         }
                     }
 
