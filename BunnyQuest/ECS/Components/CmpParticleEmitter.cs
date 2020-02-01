@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Generic;
 
 namespace BunnyQuest.ECS.Components
 {
@@ -13,16 +14,29 @@ namespace BunnyQuest.ECS.Components
                 this.fade_time = fade_time;
                 this.velocity = velocity;
                 this.dir = dir;
+                
             }
             Vector2 pos;
             float fade_time;
             Vector2 velocity;
             Vector2 dir;
+            
         }
 
         public CmpParticleEmitter(Entity owner, Texture2D spritesheet, Vector2 position) : base(owner)
         {
+            this.spritesheet = spritesheet;
+            this.position = position;
+            particle_list = new List<Particle>();
+
         }
+
+        public Texture2D spritesheet;
+        public Vector2 position;
+        private List<Particle> particle_list;
+        public float emission_timer;
+
+        
 
         public override void Update(float delta)
         {
@@ -31,12 +45,12 @@ namespace BunnyQuest.ECS.Components
 
         public override void Render(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw();
+            //spriteBatch.Draw();
         }
 
         public void Emit()
         {
-
+            
         }
             
 
