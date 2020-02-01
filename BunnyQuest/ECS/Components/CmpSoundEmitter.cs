@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Content;
 using System.Collections.Generic;
 
 namespace BunnyQuest.ECS.Components
@@ -8,11 +9,13 @@ namespace BunnyQuest.ECS.Components
         public Dictionary<string, SoundEffect> soundEffects;
 
         private List<SoundEffectInstance> instances;
+        private ContentManager contentManager;
 
-        public CmpSoundEmitter(Entity owner) : base(owner)
+        public CmpSoundEmitter(Entity owner, ContentManager contentManager) : base(owner)
         {
-            soundEffects = new Dictionary<string, SoundEffect>();
-            instances = new List<SoundEffectInstance>();
+            this.soundEffects = new Dictionary<string, SoundEffect>();
+            this.instances = new List<SoundEffectInstance>();
+            this.contentManager = contentManager;
         }
 
         public void EmitSound(string sfx_name)
