@@ -453,8 +453,8 @@ namespace BunnyQuest
             spriteBatch.Draw(tex_background, new Rectangle(0, 0, Window.ClientBounds.Width, Window.ClientBounds.Height), Color.White);
             spriteBatch.End();
 
+            #region Render Tiles
             spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.PointClamp, null, null, null, camera.GetTransformation(this.GraphicsDevice));
-
             for (int i = 0; i < map.mapWidth; ++i)
             {
                 for (int j = 0; j < map.mapHeight; ++j)
@@ -463,18 +463,22 @@ namespace BunnyQuest
                     spriteBatch.Draw(map.tileSheet.tex, t.rect, map.tileSheet.sourceRects[t.tileid], Color.White);
                 }
             }
+            #endregion
 
-            // Render the ECS world
+
+
+            #region Render the ECS world
             system.Render(spriteBatch);
-
-            if(flag_changedBunny_marker)
-            {
-                Vector2 pos = new Vector2(
-                    GetCameraTarget().pos.X + tex_changedBunny_marker.Width / 4,
-                    GetCameraTarget().pos.Y - GetCameraTarget().size.Y + sin_marker);
-                spriteBatch.Draw(tex_changedBunny_marker, pos, Color.White);
-            }
+            //if(flag_changedBunny_marker)
+            //{
+            //    Vector2 pos = new Vector2(
+            //        GetCameraTarget().pos.X + tex_changedBunny_marker.Width / 4,
+            //        GetCameraTarget().pos.Y - GetCameraTarget().size.Y + sin_marker);
+            //    spriteBatch.Draw(tex_changedBunny_marker, pos, Color.White);
+            //}
             spriteBatch.End();
+            #endregion
+
 
 
             #region User Interface stuff
@@ -482,15 +486,15 @@ namespace BunnyQuest
 
 
             if(cursorSelection_rect != Rectangle.Empty)
-            {
                 spriteBatch.Draw(tex_pixel, cursorSelection_rect, Color.Blue * 0.2f);
-            }
+            
 
             for(int i = 0; i < player.GetComponent<CmpStats>().health_cap; ++i)
                 spriteBatch.Draw(tex_carrot, new Vector2(25 + (24 * i), 25), Color.Black);
 
             for (int i = 0; i < player.GetComponent<CmpStats>().GetHealth(); ++i)
-                spriteBatch.Draw(tex_carrot, new Vector2(25 + (24 * i), 25), Color.White);            
+                spriteBatch.Draw(tex_carrot, new Vector2(25 + (24 * i), 25), Color.White);     
+            
             spriteBatch.End();
             #endregion
 
