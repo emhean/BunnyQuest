@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
+using System;
 
 namespace BunnyQuest.Entities
 {
@@ -57,10 +58,22 @@ namespace BunnyQuest.Entities
             betaBunny.SetState(CmpAI_Follower.STATE_CmpAI_Follower.Following);
 
             followers.Add(betaBunny);
+
+            betaBunny.ai.StoppedFollowing += RemoveFollower;
         }
 
-        public void RemoveFollower(BetaBunny betaBunny)
+
+
+        public void RemoveFollower(object sender, EntityArgs args)
         {
+            BetaBunny betaBunny;
+            if (args.Entity is BetaBunny)
+            {
+                betaBunny = (BetaBunny)args.Entity;
+            }
+            else
+                return; // If this happens then it's 100% your fault.
+
             if (followers.Count > 1)
             {
                 int index = followers.IndexOf(betaBunny);
@@ -75,13 +88,17 @@ namespace BunnyQuest.Entities
                 }
 
                 foreach (var bb in foo)
+                {
+                    bb.ai.StoppedFollowing -= RemoveFollower;
                     followers.Remove(bb);
+                }
             }
             else
             {
                 betaBunny.ai.entity_toFollow = null;
                 betaBunny.SetState(CmpAI_Follower.STATE_CmpAI_Follower.NoneToFollow);
 
+                betaBunny.ai.StoppedFollowing -= RemoveFollower;
                 followers.Remove(betaBunny);
             }
 

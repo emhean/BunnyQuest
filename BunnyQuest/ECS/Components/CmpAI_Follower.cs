@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using System;
 
 namespace BunnyQuest.ECS.Components
 {
@@ -29,6 +30,12 @@ namespace BunnyQuest.ECS.Components
             this.speed = speed;
         }
 
+        public void SetDestination(Vector2 destination)
+        {
+            this.destination = destination;
+            destination_set = true;
+        }
+
         public void SetLeader(Entity entity)
         {
             entity_toFollow = entity;
@@ -41,6 +48,12 @@ namespace BunnyQuest.ECS.Components
         }
 
         public Entity entity_toFollow;
+
+        bool destination_set;
+        public Vector2 destination;
+        Vector2 pos_previous;
+        int count_whenIsStuck = 0; 
+
         public Vector2 direction;
         public Vector2 speed;
         public float distance_whenToFollow = 48f; // if tile is 32, one and a half tile distance
@@ -59,28 +72,90 @@ namespace BunnyQuest.ECS.Components
             return Vector2.Distance(entity.GetCenterPosition(), entity_toFollow.GetCenterPosition());
         }
 
+        public float GetDistanceFromDestination()
+        {
+            return Vector2.Distance(entity.GetCenterPosition(), destination);
+        }
+
+        public event EventHandler<EntityArgs> StoppedFollowing;
+        public void OnStoppedFollowing()
+        {
+            entity_toFollow = null;
+            direction = Vector2.Zero;
+            state = STATE_CmpAI_Follower.NoneToFollow;
+
+            if (StoppedFollowing != null) // there is a hook
+            {
+                StoppedFollowing.Invoke(this.entity, new EntityArgs(this.entity, this));
+            }
+        }
+
+        private void CheckIfStuck(Vector2 targetPosition)
+        {
+            // maybe < ??????????
+            if (Vector2.Distance(entity.GetCenterPosition(), pos_previous) > (direction.X * speed.X))
+            {
+                count_whenIsStuck += 1;
+
+                if (count_whenIsStuck >= 500)
+                {
+                    if (destination_set)
+                    {
+                        destination_set = false;
+
+                        OnStoppedFollowing();
+                    }
+                    else if (entity_toFollow != null)
+                    {
+                        OnStoppedFollowing();
+                    }
+
+                    count_whenIsStuck = 0;
+                }
+            }
+        }
+
         public override void Update(float delta)
         {
-            // Fast exit if entity to follow is null
-            if(entity_toFollow == null)
+            if (destination_set)
             {
-                state = STATE_CmpAI_Follower.NoneToFollow;
-                return;
-            }
+                direction = (Vector2.Normalize(Vector2.Subtract(destination, entity.GetCenterPosition())));
 
-            float dist = GetDistance();
-
-            if(dist > distance_whenToSeparate) // if distance is big enough to separate
-            {
-                //state = STATE_CmpAI_Follower.Separated;
-                state = STATE_CmpAI_Follower.NoneToFollow;
-            }
-            else if (dist > distance_whenToFollow) // if distance is big enough to follow but not separate
-            {
-                direction = (Vector2.Normalize(Vector2.Subtract(entity_toFollow.GetCenterPosition(), entity.GetCenterPosition())));
+                pos_previous = entity.GetCenterPosition();
                 entity.pos += (direction * speed);
 
-                state = STATE_CmpAI_Follower.Following;
+                if (GetDistanceFromDestination() < 32)
+                {
+                    destination_set = false;
+                }
+
+                CheckIfStuck(destination);
+            }
+            else if (entity_toFollow != null)
+            {
+                float dist = GetDistance();
+
+                if (dist > distance_whenToSeparate) // if distance is big enough to separate
+                {
+                    //state = STATE_CmpAI_Follower.Separated;
+                    state = STATE_CmpAI_Follower.NoneToFollow;
+                }
+                else if (dist > distance_whenToFollow) // if distance is big enough to follow but not separate
+                {
+                    direction = (Vector2.Normalize(Vector2.Subtract(entity_toFollow.GetCenterPosition(), entity.GetCenterPosition())));
+                    entity.pos += (direction * speed);
+
+                    state = STATE_CmpAI_Follower.Following;
+                }
+
+            }
+            else
+            {
+                // State check before invoke, to prevent invoking event every frame
+                if (state != STATE_CmpAI_Follower.NoneToFollow)
+                {
+                    OnStoppedFollowing();
+                }
             }
         }
     }

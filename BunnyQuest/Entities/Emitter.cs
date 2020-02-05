@@ -14,8 +14,6 @@ namespace BunnyQuest.Entities
     {
         public Emitter(int UUID) : base(UUID)
         {
-            this.AddComponent(new CmpParticleEmitter(this));
-            this.AddComponent(new CmpSoundEmitter(this));
         }
 
         public bool isEmitting;

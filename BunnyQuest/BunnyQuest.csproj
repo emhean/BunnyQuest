@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="Camera\Camera2D.cs" />
     <Compile Include="Camera\Camera2DControlled.cs" />
+    <Compile Include="CursorSelection.cs" />
     <Compile Include="ECS\Component.cs" />
     <Compile Include="ECS\Components\CmpAI.cs" />
     <Compile Include="ECS\Components\CmpAI_Follower.cs" />
@@ -52,6 +53,7 @@
     <Compile Include="ECS\Components\CmpParticleEmitter.cs" />
     <Compile Include="ECS\Components\CmpSoundEmitter.cs" />
     <Compile Include="ECS\Components\CmpStats.cs" />
+    <Compile Include="ECS\Components\ComponentArgs.cs" />
     <Compile Include="ECS\Entity.cs" />
     <Compile Include="ECS\System.cs" />
     <Compile Include="Entities\Emitter.cs" />
@@ -62,6 +64,7 @@
     <Compile Include="Main.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utilities.cs" />
     <Compile Include="World\Grid2D.cs" />
     <Compile Include="World\Map2D.cs" />
     <Compile Include="World\Tile.cs" />
