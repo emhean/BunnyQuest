@@ -8,7 +8,7 @@ using System.Collections.Generic;
 namespace BunnyQuest.ECS
 {
     #region UUID Stuff
-    partial class System
+    partial class Engine
     {
         static int uuid_count;
 
@@ -23,7 +23,7 @@ namespace BunnyQuest.ECS
 
 
     #region Entity Methods
-    partial class System
+    partial class Engine
     {
         /// <summary>
         /// Gets the entity of specified UUID. 
@@ -45,6 +45,11 @@ namespace BunnyQuest.ECS
         public Entity GetEntityFromIndex(int index)
         {
             return entities[index];
+        }
+
+        public bool HasEntityOfIndex(int index)
+        {
+            return (index < entities.Count);
         }
 
         /// <summary>
@@ -103,13 +108,13 @@ namespace BunnyQuest.ECS
 
 
     #region Fields and Constructor
-    partial class System
+    partial class Engine
     {
         private List<Entity> entities;
         private List<Entity> entities_expired;
         private Map2D map;
 
-        public System(Map2D map)
+        public Engine(Map2D map)
         {
             this.map = map;
             this.entities = new List<Entity>();
@@ -120,7 +125,7 @@ namespace BunnyQuest.ECS
 
 
     #region Update Logic
-    partial class System
+    partial class Engine
     {
         /// <summary>
         /// The main update loop that runs at 60 times per second.
@@ -231,7 +236,7 @@ namespace BunnyQuest.ECS
 
 
     #region Render Logic
-    partial class System
+    partial class Engine
     {
         public void Render(SpriteBatch spriteBatch)
         {
@@ -251,7 +256,7 @@ namespace BunnyQuest.ECS
 
 
     #region Collision Logic
-    partial class System
+    partial class Engine
     {
         public enum COLLISION_SIDE
         {
@@ -340,7 +345,7 @@ namespace BunnyQuest.ECS
     #endregion
 
     #region AI
-    partial class System
+    partial class Engine
     {
         public void EnemyMovement()
         {

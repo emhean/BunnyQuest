@@ -10,6 +10,9 @@ namespace BunnyQuest.ECS.Components
         public int currentSprite;
         public int currentSpriteCollection;
 
+        public SpriteEffects effects;
+        public float scale = 1;
+        public float layerDepth = 0;
         public Color renderColor = Color.White;
         public Vector2 origin = new Vector2(16, 16);
         public float rotation;
@@ -45,7 +48,7 @@ namespace BunnyQuest.ECS.Components
         public override void Render(SpriteBatch spriteBatch)
         {
             spriteBatch.Draw(spriteSheet, entity.pos + entity.size / 2, sprites[currentSpriteCollection][currentSprite],
-                renderColor, rotation, origin, 1f, SpriteEffects.None, 0f);
+                renderColor, rotation, origin, scale, effects, layerDepth);
         }
     }
 }

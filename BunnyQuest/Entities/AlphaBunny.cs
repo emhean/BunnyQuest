@@ -45,7 +45,6 @@ namespace BunnyQuest.Entities
 
         public List<BetaBunny> followers = new List<BetaBunny>();
 
-
         public void AddFollower(BetaBunny betaBunny)
         {
             if(followers.Count == 0)
@@ -62,32 +61,32 @@ namespace BunnyQuest.Entities
             betaBunny.ai.StoppedFollowing += RemoveFollower;
         }
 
-
-
+        /// <summary>
+        /// Removes the follower and all followers of that follower. Use GetFollowersOfFollower before calling this to get them.
+        /// </summary>
         public void RemoveFollower(object sender, EntityArgs args)
         {
             BetaBunny betaBunny;
             if (args.Entity is BetaBunny)
-            {
                 betaBunny = (BetaBunny)args.Entity;
-            }
             else
                 return; // If this happens then it's 100% your fault.
 
             if (followers.Count > 1)
             {
-                int index = followers.IndexOf(betaBunny);
+                int index = followers.IndexOf(betaBunny); // We use this as start index in iteration
+                if (index == -1)
+                    return; //  Should not happen but happens anyway
 
-                var foo = new List<BetaBunny>();
-
+                var list = new List<BetaBunny>();
                 for (int i = index; i < followers.Count; i++)
                 {
                     followers[i].SetState(CmpAI_Follower.STATE_CmpAI_Follower.NoneToFollow);
                     followers[i].ai.entity_toFollow = null;
-                    foo.Add(followers[i]);
+                    list.Add(followers[i]);
                 }
 
-                foreach (var bb in foo)
+                foreach (var bb in list)
                 {
                     bb.ai.StoppedFollowing -= RemoveFollower;
                     followers.Remove(bb);
@@ -105,6 +104,15 @@ namespace BunnyQuest.Entities
 
         }
 
+
+        public List<BetaBunny> GetFollowersOfFollower(BetaBunny betaBunny)
+        {
+            var list = new List<BetaBunny>();
+            for (int i = followers.IndexOf(betaBunny) + 1; i < followers.Count; i++)
+                list.Add(followers[i]);
+            return list;
+        }
+
         public void RemoveAllFollowers()
         {
             for(int i = 0; i < followers.Count; ++i)
@@ -112,7 +120,6 @@ namespace BunnyQuest.Entities
                 followers[i].ai.entity_toFollow = null;
                 followers[i].SetState(CmpAI_Follower.STATE_CmpAI_Follower.NoneToFollow);
             }
-
             followers.Clear();
         }
     }

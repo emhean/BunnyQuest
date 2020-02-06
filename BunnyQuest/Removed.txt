@@ -1,0 +1,10 @@
+﻿            //if (t_changedBunny_marker < 2)
+            //{
+            //    t_changedBunny_marker += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            //    sin_marker += (float)Math.Cos(t_changedBunny_marker * 8);
+            //}
+            //if (t_changedBunny_marker > 2)
+            //{
+            //    flag_changedBunny_marker = false;
+            //    t_changedBunny_marker = 0;
+            //}

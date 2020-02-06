@@ -65,18 +65,34 @@ namespace BunnyQuest.Camera
             _transform = Matrix.CreateTranslation(new Vector3(-_pos.X, -_pos.Y, 0)) *
                                          Matrix.CreateRotationZ(_rotation) *
                                          Matrix.CreateScale(new Vector3(_zoom, _zoom, 1)) *
-                                         Matrix.CreateTranslation(new Vector3(graphicsDevice.Viewport.Width * 0.5f, graphicsDevice.Viewport.Height * 0.5f, 0));
+                                         Matrix.CreateTranslation(new Vector3(graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height, 0));
             return _transform;
         }
 
-        public Vector2 GetVector2Transformation(GraphicsDevice graphicsDevice, Vector2 v)
+        public Vector2 GetWorldCursorDirection(Vector2 origin, Vector2 cursorPosition)
         {
-            _transform = Matrix.CreateTranslation(new Vector3(-v.X, -v.Y, 0)) *
-                                         Matrix.CreateRotationZ(_rotation) *
-                                         Matrix.CreateScale(new Vector3(_zoom, _zoom, 1)) *
-                                         Matrix.CreateTranslation(new Vector3(graphicsDevice.Viewport.Width * 0.5f, graphicsDevice.Viewport.Height * 0.5f, 0));
-
-            return new Vector2(_transform.Translation.X, _transform.Translation.Y);
+            return Vector2.Normalize(Vector2.Subtract(GetWorldPosition(GetScreenPosition(cursorPosition)), GetWorldPosition(origin)));
         }
+        public Vector2 GetWorldPosition(Vector2 fromPosition)
+        {
+            return Vector2.Transform(fromPosition, Matrix.Invert(_transform));
+        }
+        public Vector2 GetScreenPosition(Vector2 fromPosition)
+        {
+            return Vector2.Transform(fromPosition, Matrix.Invert(_transform));
+        }
+        //public Vector2 GetScreenPositionNoZoom(Vector2 fromPosition)
+        //{
+        //    return Vector2.Transform(fromPosition, Matrix.Invert(menuMatrix));
+        //}
+        //public Vector2 GetVector2Transformation(GraphicsDevice graphicsDevice, Vector2 v)
+        //{
+        //    _transform = Matrix.CreateTranslation(new Vector3(-v.X, -v.Y, 0)) *
+        //                                 Matrix.CreateRotationZ(_rotation) *
+        //                                 Matrix.CreateScale(new Vector3(_zoom, _zoom, 1)) *
+        //                                 Matrix.CreateTranslation(new Vector3(graphicsDevice.Viewport.Width * 0.5f, graphicsDevice.Viewport.Height * 0.5f, 0));
+
+        //    return new Vector2(_transform.Translation.X, _transform.Translation.Y);
+        //}
     }
 }

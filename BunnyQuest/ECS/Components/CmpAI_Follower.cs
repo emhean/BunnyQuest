@@ -8,26 +8,52 @@ namespace BunnyQuest.ECS.Components
         public enum STATE_CmpAI_Follower
         {
             NoneToFollow,
-            //Separated,
             Following,
-        }
-
-        STATE_CmpAI_Follower state;
-        public STATE_CmpAI_Follower State
-        {
-            get
-            {
-                return state;
-            }
-            set
-            {
-                state = value;
-            }
         }
 
         public CmpAI_Follower(Entity owner, Vector2 speed) : base(owner)
         {
             this.speed = speed;
+        }
+
+        public STATE_CmpAI_Follower State { get; set; }
+        public Entity entity_toFollow;
+        public Vector2 direction;
+        public Vector2 speed;
+        public float distance_whenToFollow = 48f; // if tile is 32, one and a half tile distance
+        public float distance_whenToSeparate = 592f; // distance when this follower is too far away to follow
+
+        public bool destination_set;
+        public Vector2 destination;
+        Vector2 pos_previous;
+        int count_whenIsStuck = 0;
+
+
+        public event EventHandler<EntityArgs> StoppedFollowing;
+        public event EventHandler<EntityArgs> DestinationReached;
+
+        public void OnStoppedFollowing()
+        {
+            entity_toFollow = null;
+            direction = Vector2.Zero;
+            State = STATE_CmpAI_Follower.NoneToFollow;
+
+            if (StoppedFollowing != null) // there is a hook
+            {
+                StoppedFollowing.Invoke(this.entity, new EntityArgs(this.entity, this));
+            }
+        }
+
+        protected void OnDestinationReached()
+        {
+            destination_set = false;
+
+            entity_toFollow = null;
+            direction = Vector2.Zero;
+            State = STATE_CmpAI_Follower.NoneToFollow;
+
+            if (DestinationReached != null)
+                DestinationReached.Invoke(this, new EntityArgs(this.entity, this));
         }
 
         public void SetDestination(Vector2 destination)
@@ -39,25 +65,13 @@ namespace BunnyQuest.ECS.Components
         public void SetLeader(Entity entity)
         {
             entity_toFollow = entity;
-            //this.state = STATE_CmpAI_Follower.Following;
+            this.State = STATE_CmpAI_Follower.Following;
         }
 
         public void RemoveLeader()
         {
-            //this.state = STATE_CmpAI_Follower.NoneToFollow;
+            this.State = STATE_CmpAI_Follower.NoneToFollow;
         }
-
-        public Entity entity_toFollow;
-
-        bool destination_set;
-        public Vector2 destination;
-        Vector2 pos_previous;
-        int count_whenIsStuck = 0; 
-
-        public Vector2 direction;
-        public Vector2 speed;
-        public float distance_whenToFollow = 48f; // if tile is 32, one and a half tile distance
-        public float distance_whenToSeparate = 192f; // distance when this follower is too far away to follow
 
         public Vector2 GetVelocity()
         {
@@ -77,19 +91,6 @@ namespace BunnyQuest.ECS.Components
             return Vector2.Distance(entity.GetCenterPosition(), destination);
         }
 
-        public event EventHandler<EntityArgs> StoppedFollowing;
-        public void OnStoppedFollowing()
-        {
-            entity_toFollow = null;
-            direction = Vector2.Zero;
-            state = STATE_CmpAI_Follower.NoneToFollow;
-
-            if (StoppedFollowing != null) // there is a hook
-            {
-                StoppedFollowing.Invoke(this.entity, new EntityArgs(this.entity, this));
-            }
-        }
-
         private void CheckIfStuck(Vector2 targetPosition)
         {
             // maybe < ??????????
@@ -97,12 +98,11 @@ namespace BunnyQuest.ECS.Components
             {
                 count_whenIsStuck += 1;
 
-                if (count_whenIsStuck >= 500)
+                if (count_whenIsStuck >= 400)
                 {
                     if (destination_set)
                     {
-                        destination_set = false;
-
+                        //OnDestinationReached(); This caused a bug why was this here
                         OnStoppedFollowing();
                     }
                     else if (entity_toFollow != null)
@@ -126,7 +126,7 @@ namespace BunnyQuest.ECS.Components
 
                 if (GetDistanceFromDestination() < 32)
                 {
-                    destination_set = false;
+                    OnDestinationReached();
                 }
 
                 CheckIfStuck(destination);
@@ -137,22 +137,21 @@ namespace BunnyQuest.ECS.Components
 
                 if (dist > distance_whenToSeparate) // if distance is big enough to separate
                 {
-                    //state = STATE_CmpAI_Follower.Separated;
-                    state = STATE_CmpAI_Follower.NoneToFollow;
+                    State = STATE_CmpAI_Follower.NoneToFollow;
                 }
                 else if (dist > distance_whenToFollow) // if distance is big enough to follow but not separate
                 {
                     direction = (Vector2.Normalize(Vector2.Subtract(entity_toFollow.GetCenterPosition(), entity.GetCenterPosition())));
                     entity.pos += (direction * speed);
 
-                    state = STATE_CmpAI_Follower.Following;
+                    State = STATE_CmpAI_Follower.Following;
                 }
 
             }
             else
             {
                 // State check before invoke, to prevent invoking event every frame
-                if (state != STATE_CmpAI_Follower.NoneToFollow)
+                if (State != STATE_CmpAI_Follower.NoneToFollow)
                 {
                     OnStoppedFollowing();
                 }

@@ -25,8 +25,14 @@ namespace BunnyQuest
 
         Camera.Camera2DControlled camera;
         int camera_entity;
+        /// <summary>
+        /// A reference to the player entity inside the ECS engine.
+        /// </summary>
         AlphaBunny player;
-        ECS.System system;
+
+        Entity splasher;
+
+        Engine engine;
         Map2D map;
 
         CursorSelection cursorSelection;
@@ -46,10 +52,10 @@ namespace BunnyQuest
         protected override void Initialize()
         {
             camera = new Camera.Camera2DControlled();
-            camera.Zoom = 1.5f;
+            camera.Zoom = 1f;
 
             map = new Map2D(Content, 16);
-            system = new ECS.System(map);
+            engine = new ECS.Engine(map);
 
             mouseState = Mouse.GetState();
             cursor_rect = new Rectangle(mouseState.X, mouseState.Y, 1, 1);
@@ -69,13 +75,19 @@ namespace BunnyQuest
             tex_background = Content.Load<Texture2D>("etc/jungle");
 
 
-            system.AddEntity(new AlphaBunny(0, this.Content)
+            engine.AddEntity(new AlphaBunny(0, this.Content)
             {
                 size = new Vector2(32, 32),
                 pos = new Vector2(240, 240)
             });
 
-            this.player = (AlphaBunny)system.GetEntityFromIndex(0);
+            this.player = (AlphaBunny)engine.GetEntityFromIndex(0);
+
+
+            this.splasher = new Entity(1);
+            splasher.AddComponent(new CmpSplashes(splasher, Content.Load<Texture2D>("etc/flag"), -99));
+            engine.AddEntity(splasher);
+
 
 
             for (int i = 2; i < 10; ++i)
@@ -85,7 +97,7 @@ namespace BunnyQuest
                     size = new Vector2(32, 32),
                     pos = new Vector2(101 + (32 * i), 450)
                 };
-                system.AddEntity(bb);
+                engine.AddEntity(bb);
             }
 
 
@@ -97,11 +109,11 @@ namespace BunnyQuest
             //system.AddEntity(enemy);
 
 
-            for (int i = 0; i < 2; ++i)
-                system.AddEntity(new Entities.Tree(99 + i, Content) { pos = new Vector2(224 + (32 * i), 100) });
+            //for (int i = 0; i < 2; ++i)
+            //    engine.AddEntity(new Entities.Tree(99 + i, Content) { pos = new Vector2(224 + (32 * i), 100) });
 
-            for (int i = 0; i < 2; ++i)
-                system.AddEntity(new Entities.Tree(99 + i, Content) { pos = new Vector2(384 + (32 * i), 100) });
+            //for (int i = 0; i < 2; ++i)
+            //    engine.AddEntity(new Entities.Tree(99 + i, Content) { pos = new Vector2(384 + (32 * i), 100) });
         }
 
 
@@ -112,20 +124,20 @@ namespace BunnyQuest
         private void ChangeBunny()
         {
             if (player.UUID == 1)
-                this.player = (AlphaBunny)system.GetEntity(0);
+                this.player = (AlphaBunny)engine.GetEntity(0);
             else if (player.UUID == 0)
-                this.player = (AlphaBunny)system.GetEntity(1);
+                this.player = (AlphaBunny)engine.GetEntity(1);
 
 
             //t_changedBunny_marker = 2;
             //flag_changedBunny_marker = true;
 
-            for (int i = 0; i < system.GetEntityCount(); i++)
+            for (int i = 0; i < engine.GetEntityCount(); i++)
             {
                 if (i == player.UUID)
                     continue;
 
-                var ent = system.GetEntity(i);
+                var ent = engine.GetEntity(i);
 
                 if (ent is AlphaBunny p)
                 {
@@ -140,13 +152,13 @@ namespace BunnyQuest
 
         private Entity GetCameraTarget()
         {
-            return system.GetEntityFromIndex(camera_entity);
+            return engine.GetEntityFromIndex(camera_entity);
         }
 
         private void SetCameraTarget()
         {
             camera_entity += 1;
-            if (camera_entity == system.GetEntityCount())
+            if (camera_entity == engine.GetEntityCount())
                 camera_entity = 0;
 
             //t_changedBunny_marker = 0;
@@ -167,9 +179,9 @@ namespace BunnyQuest
             if (player.expired)
             {
                 // If player controlled alpha bunny is dead we find the next one.... hopefully
-                for (int i = 0; i < system.GetEntityCount(); ++i)
+                for (int i = 0; i < engine.GetEntityCount(); ++i)
                 {
-                    if (system.GetEntityFromIndex(i) is AlphaBunny p)
+                    if (engine.GetEntityFromIndex(i) is AlphaBunny p)
                     {
                         if (p.expired == false)
                         {
@@ -181,45 +193,53 @@ namespace BunnyQuest
             }
 
 
-            //if (t_changedBunny_marker < 2)
-            //{
-            //    t_changedBunny_marker += (float)gameTime.ElapsedGameTime.TotalSeconds;
-            //    sin_marker += (float)Math.Cos(t_changedBunny_marker * 8);
-            //}
-            //if (t_changedBunny_marker > 2)
-            //{
-            //    flag_changedBunny_marker = false;
-            //    t_changedBunny_marker = 0;
-            //}
-
-
             #region Rotation to player direction stuff
-            // Rotate player
-            Utilities.RotateAnimToDirection(player.GetComponent<CmpAnim>(), player.direction);
 
-            // TODO: Move this into CmpAI_Follower?
+            // Rotate player
+            Utils.SetAnimBasedOfDirection(player.GetComponent<CmpAnim>(), player.direction);
+
             // Rotate follower bunnies
-            foreach (BetaBunny bb in system.EnumerateEntities<BetaBunny>(1, 100))
+            for (int i = 2; i < 100; ++i)
             {
-                if (bb.ai.State == CmpAI_Follower.STATE_CmpAI_Follower.Following)
+                if (engine.HasEntityOfIndex(i) == false || engine.HasEntityOfIndex(i + 1) == false)
+                    break;
+
+                BetaBunny bb = (BetaBunny)engine.GetEntityFromIndex(i);
+
+                Vector2 dir = Vector2.Zero; // We set this in the if statements below. its the direction that sprite will be flipped to.
+                if (bb.ai.destination_set)
                 {
-                    bb.anim.renderColor = Color.LightGray;
-                    Utilities.RotateAnimToDirection(bb.anim, player.direction);
+                    dir = bb.ai.destination;
+                    //bb.anim.renderColor = Color.LightGray;
+                }
+                else if (bb.ai.State == CmpAI_Follower.STATE_CmpAI_Follower.Following)
+                {
+                    dir = bb.ai.entity_toFollow.GetCenterPosition();
+                    //bb.anim.renderColor = Color.LightGray;
                 }
                 else
-                    bb.anim.renderColor = Color.Gray;
+                {
+                    //bb.anim.renderColor = Color.Gray;
+                    continue;
+                }
+
+                Utils.SetAnimBasedOfDirection(bb.anim, Utils.GetDirection(bb.GetCenterPosition(), dir));
             }
             #endregion
 
+
             player.pos += (player.speed * player.direction);
 
-            camera.Position = GetCameraTarget().pos + GetCameraTarget().size / 2;
+            Vector2 pos = new Vector2(
+                GetCameraTarget().pos.X + (GraphicsDevice.Viewport.Width) * 0.5f, 
+                GetCameraTarget().pos.Y + (GraphicsDevice.Viewport.Height) * 0.5f);
+            camera.Position = pos; //GetCameraTarget().pos + graphics.GraphicsDevice.; //+ GetCameraTarget().size / 2;
 
             // Update camera before updating the ECS
             camera.UpdateControls((float)gameTime.ElapsedGameTime.TotalSeconds);
 
             // Update the ECS
-            system.Update(gameTime);
+            engine.Update(gameTime);
 
             base.Update(gameTime);
         }
@@ -253,9 +273,40 @@ namespace BunnyQuest
                 if(mouseState.LeftButton == ButtonState.Released
                     && prev_mouseState.LeftButton == ButtonState.Pressed)
                 {
-                    foreach(var bb in player.followers)
+                    var cursor_worldPos = camera.GetWorldPosition(cursor_pos);
+
+                    splasher.GetComponent<CmpSplashes>().ClearSplashes();
+                    splasher.GetComponent<CmpSplashes>().CreateSplash(cursor_worldPos - Vector2.UnitY * 32);
+
+                    void RemoveSplash(object o, EntityArgs args)
                     {
-                        bb.ai.SetDestination(cursor_pos);
+                        if (o is CmpAI_Follower ai)
+                        {
+                            //foreach(var bb in player.GetFollowersOfFollower( (BetaBunny)args.Entity))
+                            //{
+                            //    bb.GetComponent<CmpAnim>().currentSpriteCollection = 2;
+                            //}
+
+                            player.RemoveFollower(ai.entity, args);
+
+                            splasher.GetComponent<CmpSplashes>().ClearSplashes();
+                            ai.DestinationReached -= RemoveSplash;
+                        }
+                    };
+
+                    // Send all bunnies to clicked position
+                    if (player.followers.Count != 0)
+                    {
+                        var list = player.GetFollowersOfFollower(player.followers[0]);
+
+                        player.followers[0].ai.SetDestination(cursor_worldPos);
+                        player.followers[0].ai.DestinationReached += RemoveSplash;
+                        player.RemoveFollower(null, new EntityArgs(player.followers[0], null));
+                        
+                        for(int i = 0; i < list.Count; ++i)
+                        {
+                            player.AddFollower(list[i]);
+                        }
                     }
                 }
             }
@@ -265,27 +316,29 @@ namespace BunnyQuest
             #region Keyboard movement stuff
             if (keyboardState.IsKeyDown(Keys.W)) // Up
             {
+                player.direction.X = 0;
                 player.direction.Y = -1;
-                player.GetComponent<CmpAnim>().currentSpriteCollection = 0;
             }
             else if (keyboardState.IsKeyDown(Keys.S)) // Down
             {
+                player.direction.X = 0;
                 player.direction.Y = 1;
-                player.GetComponent<CmpAnim>().currentSpriteCollection = 2;
             }
-            else player.direction.Y = 0;
-
-            if (keyboardState.IsKeyDown(Keys.A)) // Left
+            else if (keyboardState.IsKeyDown(Keys.A)) // Left
             {
                 player.direction.X = -1;
-                player.GetComponent<CmpAnim>().currentSpriteCollection = 3;
+                player.direction.Y = 0;
             }
             else if (keyboardState.IsKeyDown(Keys.D)) // Right
             {
                 player.direction.X = 1;
-                player.GetComponent<CmpAnim>().currentSpriteCollection = 1;
+                player.direction.Y = 0;
             }
-            else player.direction.X = 0;
+            else
+            {
+                player.direction.X = 0;
+                player.direction.Y = 0;
+            }
 
 
             if (player.direction == Vector2.Zero)
@@ -308,7 +361,7 @@ namespace BunnyQuest
                 && mouseState.RightButton == ButtonState.Released)
             {
                 // Enumerate and get those who collide with cursor
-                foreach (var e in Utilities.EnumerateCursorCollisioners(system, cursor_rect, camera, GraphicsDevice))
+                foreach (var e in Utils.EnumerateCursorCollisioners(engine, cursor_rect, camera, GraphicsDevice))
                 {
                     if (e is BetaBunny bb) // Cast those of type BetaBunny
                     {
@@ -338,7 +391,7 @@ namespace BunnyQuest
                 if (cursorSelection.selection_started)
                 {
                     // Same as when enumerating the cursor_rect except this time we enumerate the selection rectangle
-                    foreach (var e in Utilities.EnumerateCursorCollisioners(system, cursorSelection.rect, camera, GraphicsDevice))
+                    foreach (var e in Utils.EnumerateCursorCollisioners(engine, cursorSelection.rect, camera, GraphicsDevice))
                     {
                         if (e is BetaBunny bb) // Cast entity if it's a BetaBunny. Otherwise tree's and shit will follow us.
                         {
@@ -380,7 +433,7 @@ namespace BunnyQuest
 
 
             #region Render the ECS world
-            system.Render(spriteBatch);
+            engine.Render(spriteBatch);
             spriteBatch.End();
             #endregion
 
@@ -391,10 +444,13 @@ namespace BunnyQuest
 
             cursorSelection.Render(spriteBatch);
 
-            for (int i = 0; i < player.GetComponent<CmpStats>().health_cap; ++i)
-                spriteBatch.Draw(tex_carrot, new Vector2(25 + (24 * i), 25), Color.Black);
-
-            for (int i = 0; i < player.GetComponent<CmpStats>().GetHealth(); ++i)
+            // Render logic for the player healthbar (the carrots at top left)
+            var stats = player.GetComponent<CmpStats>();
+            // Render the black carrots that is relative to actual max health but subtraced by current health
+            for (int i = stats.health_cap; i > stats.health; --i)
+                spriteBatch.Draw(tex_carrot, new Vector2((24 * i), 25), Color.Black);
+            // Render the carrots that is relative to current health
+            for (int i = 0; i < stats.GetHealth(); ++i)
                 spriteBatch.Draw(tex_carrot, new Vector2(25 + (24 * i), 25), Color.White);
 
             spriteBatch.End();
