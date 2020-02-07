@@ -44,7 +44,7 @@ namespace BunnyQuest.ECS.Components
 
         public void CreateSplash()
         {
-            splashes.Add(new Splash(entity.pos, this.lifeSpan));
+            splashes.Add(new Splash(parent.pos, this.lifeSpan));
         }
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace BunnyQuest.ECS.Components
         /// </summary>
         public void CreateSplash(float lifeSpan)
         {
-            splashes.Add(new Splash(entity.pos, lifeSpan));
+            splashes.Add(new Splash(parent.pos, lifeSpan));
         }
 
         public void CreateSplash(Vector2 pos, float lifeSpan)

@@ -9,7 +9,7 @@ namespace BunnyQuest.Entities
 {
     class Tree : Entity
     {
-        public Tree(int UUID, ContentManager content) : base(UUID)
+        public Tree(uint UUID, ContentManager content) : base(UUID)
         {
             this.size = new Vector2(32, 64);
 

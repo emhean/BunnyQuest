@@ -122,14 +122,18 @@ namespace BunnyQuest
             }
         }
 
+
+
+        Color renderColor = Color.White;
+
         public void Render(SpriteBatch spriteBatch)
         {
             if (rect != Rectangle.Empty)
             {
-                spriteBatch.Draw(tex, rect_line1, Color.White);
-                spriteBatch.Draw(tex, rect_line2, Color.White);
-                spriteBatch.Draw(tex, rect_line3, Color.White);
-                spriteBatch.Draw(tex, rect_line4, Color.White);
+                spriteBatch.Draw(tex, rect_line1, renderColor * 0.9f);
+                spriteBatch.Draw(tex, rect_line2, renderColor * 0.9f);
+                spriteBatch.Draw(tex, rect_line3, renderColor * 0.9f);
+                spriteBatch.Draw(tex, rect_line4, renderColor * 0.9f);
             }
         }
     }

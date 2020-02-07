@@ -55,7 +55,8 @@
     <Compile Include="ECS\Components\CmpSplashes.cs" />
     <Compile Include="ECS\Components\CmpStats.cs" />
     <Compile Include="ECS\Components\CmpTag.cs" />
-    <Compile Include="ECS\Components\ComponentArgs.cs" />
+    <Compile Include="ECS\ComponentArgs.cs" />
+    <Compile Include="ECS\Components\CmpTrigger.cs" />
     <Compile Include="ECS\Entity.cs" />
     <Compile Include="ECS\Engine.cs" />
     <Compile Include="Entities\Emitter.cs" />

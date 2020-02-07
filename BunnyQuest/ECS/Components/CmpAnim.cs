@@ -47,7 +47,7 @@ namespace BunnyQuest.ECS.Components
 
         public override void Render(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(spriteSheet, entity.pos + entity.size / 2, sprites[currentSpriteCollection][currentSprite],
+            spriteBatch.Draw(spriteSheet, parent.pos + parent.size / 2, sprites[currentSpriteCollection][currentSprite],
                 renderColor, rotation, origin, scale, effects, layerDepth);
         }
     }

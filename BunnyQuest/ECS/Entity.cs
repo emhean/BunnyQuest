@@ -1,31 +1,63 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
+using System;
 using System.Collections.Generic;
 
 namespace BunnyQuest.ECS
 {
     class Entity
     {
-        public readonly int UUID;
+        public readonly uint UUID;
         public List<Component> components;
         public Vector2 pos;
         public Vector2 size;
 
-        public Vector2 GetCenterPosition()
+        public Vector2 GetCenterPosition() => pos + (size / 2);
+
+        public Entity(uint UUID, ContentManager contentManager) : this(UUID)
         {
-            return pos + (size / 2);
         }
 
-        /// <summary>
-        /// If true, System will place this entity instance into the expired list and remove it from the entity list.
-        /// </summary>
-        public bool expired;
-
-        public Entity(int UUID, ContentManager contentManager) : this(UUID) { }
-        public Entity(int UUID)
+        public Entity(uint UUID)
         {
             this.UUID = UUID;
             this.components = new List<Component>();
+        }
+
+
+        bool expired;
+        /// <summary>
+        /// If true, System will place this entity instance into the expired list and remove it from the entity list.
+        /// </summary>
+        public bool Expired
+        {
+            get => expired;
+            set
+            {
+                // This means that OnExpired() is invoked only when before its set to true to avoid multiple expired event calls.
+                if (expired == false && value == true)
+                {
+                    expired = true;
+                    OnExpired();
+                }
+                else expired = value;
+            }
+        }
+        private void OnExpired()
+        {
+            EntityExpired?.Invoke(this, new EntityArgs(this, null));
+        }
+
+        public event EventHandler<EntityArgs> EntityExpired;
+        public event EventHandler<EntityArgs> ComponentAdded, ComponentRemoved;
+
+        protected void OnComponentAdded(EntityArgs args)
+        {
+            ComponentAdded?.Invoke(this, args);
+        }
+        protected void OnComponentRemoved(EntityArgs args)
+        {
+            ComponentRemoved?.Invoke(this, args);
         }
 
         /// <summary>
@@ -56,6 +88,7 @@ namespace BunnyQuest.ECS
         public void AddComponent(Component component)
         {
             this.components.Add(component);
+            OnComponentAdded(new EntityArgs(this, component));
         }
 
         /// <summary>
@@ -64,6 +97,7 @@ namespace BunnyQuest.ECS
         public void RemoveComponent(Component component)
         {
             this.components.Remove(component);
+            OnComponentRemoved(new EntityArgs(this, component));
         }
     }
 }

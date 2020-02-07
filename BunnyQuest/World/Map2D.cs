@@ -35,7 +35,7 @@ namespace BunnyQuest.World
         public Map2D(ContentManager content, int size, bool randomize = false)
         {
             this.mapWidth = size; // To keep the map size for logic
-            this.tileGrid = new TileGrid(size);
+            this.tileGrid = new TileGrid(32, 32, size);
             this.tileSheet = new TileSheet(content.Load<Texture2D>("tilesets/ts_nature"), 32);
 
             this.bgm = content.Load<SoundEffect>("bgm/bunnies").CreateInstance();

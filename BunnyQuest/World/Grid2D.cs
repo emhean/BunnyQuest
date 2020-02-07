@@ -13,6 +13,9 @@ namespace BunnyQuest.World
         /// </summary>
         public T[][] grid;
 
+        /// <summary>
+        /// The count of elements in both dimensions.
+        /// </summary>
         public readonly int Size;
 
         public Grid2D(int size)

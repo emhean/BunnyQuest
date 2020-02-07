@@ -90,14 +90,14 @@ namespace BunnyQuest.ECS.Components
 
         public override void Update(float delta)
         {
-            var dir = Vector2.Normalize(Vector2.Subtract(destination, entity.pos));
+            var dir = Vector2.Normalize(Vector2.Subtract(destination, parent.pos));
 
             if (patrol_timer > 0)
             {
                 patrol_timer = patrol_timer - delta;
                 Console.WriteLine(patrol_timer);
             }
-            entity.pos += dir * velocity;
+            parent.pos += dir * velocity;
         }
     }
 }

@@ -40,7 +40,7 @@ namespace BunnyQuest.ECS.Components
 
             if (StoppedFollowing != null) // there is a hook
             {
-                StoppedFollowing.Invoke(this.entity, new EntityArgs(this.entity, this));
+                StoppedFollowing.Invoke(this.parent, new EntityArgs(this.parent, this));
             }
         }
 
@@ -53,7 +53,7 @@ namespace BunnyQuest.ECS.Components
             State = STATE_CmpAI_Follower.NoneToFollow;
 
             if (DestinationReached != null)
-                DestinationReached.Invoke(this, new EntityArgs(this.entity, this));
+                DestinationReached.Invoke(this, new EntityArgs(this.parent, this));
         }
 
         public void SetDestination(Vector2 destination)
@@ -83,18 +83,18 @@ namespace BunnyQuest.ECS.Components
         /// </summary>
         public float GetDistance()
         {
-            return Vector2.Distance(entity.GetCenterPosition(), entity_toFollow.GetCenterPosition());
+            return Vector2.Distance(parent.GetCenterPosition(), entity_toFollow.GetCenterPosition());
         }
 
         public float GetDistanceFromDestination()
         {
-            return Vector2.Distance(entity.GetCenterPosition(), destination);
+            return Vector2.Distance(parent.GetCenterPosition(), destination);
         }
 
         private void CheckIfStuck(Vector2 targetPosition)
         {
             // maybe < ??????????
-            if (Vector2.Distance(entity.GetCenterPosition(), pos_previous) > (direction.X * speed.X))
+            if (Vector2.Distance(parent.GetCenterPosition(), pos_previous) > (direction.X * speed.X))
             {
                 count_whenIsStuck += 1;
 
@@ -119,12 +119,12 @@ namespace BunnyQuest.ECS.Components
         {
             if (destination_set)
             {
-                direction = (Vector2.Normalize(Vector2.Subtract(destination, entity.GetCenterPosition())));
+                direction = (Vector2.Normalize(Vector2.Subtract(destination, parent.GetCenterPosition())));
 
-                pos_previous = entity.GetCenterPosition();
-                entity.pos += (direction * speed);
+                pos_previous = parent.GetCenterPosition();
+                parent.pos += (direction * speed);
 
-                if (GetDistanceFromDestination() < 32)
+                if (GetDistanceFromDestination() < 1f)
                 {
                     OnDestinationReached();
                 }
@@ -141,8 +141,8 @@ namespace BunnyQuest.ECS.Components
                 }
                 else if (dist > distance_whenToFollow) // if distance is big enough to follow but not separate
                 {
-                    direction = (Vector2.Normalize(Vector2.Subtract(entity_toFollow.GetCenterPosition(), entity.GetCenterPosition())));
-                    entity.pos += (direction * speed);
+                    direction = (Vector2.Normalize(Vector2.Subtract(entity_toFollow.GetCenterPosition(), parent.GetCenterPosition())));
+                    parent.pos += (direction * speed);
 
                     State = STATE_CmpAI_Follower.Following;
                 }

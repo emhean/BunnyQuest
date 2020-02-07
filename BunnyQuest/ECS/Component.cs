@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
+using System;
 
 namespace BunnyQuest.ECS
 {
@@ -7,14 +8,14 @@ namespace BunnyQuest.ECS
         /// <summary>
         /// The entity that holds this component.
         /// </summary>
-        public Entity entity;
+        public Entity parent;
 
         /// <summary>
         /// Creates a new Component instance and sets the entity field to the parameter.
         /// </summary>
         public Component(Entity owner)
         {
-            this.entity = owner;
+            this.parent = owner;
         }
 
         public bool IsUpdated = true;
@@ -30,7 +31,24 @@ namespace BunnyQuest.ECS
         /// Renders the component.
         /// </summary>
         public virtual void Render(SpriteBatch spriteBatch) { }
-    }
 
-    
+        public event EventHandler<EntityArgs> ComponentExpired;
+
+        bool expired;
+        public bool Expired
+        {
+            get => expired;
+            set
+            {
+                expired = value;
+                if (expired)
+                    OnExpired();
+            }
+        }
+
+        private void OnExpired()
+        {
+            ComponentExpired?.Invoke(this, new EntityArgs(parent, this));
+        }
+    }
 }

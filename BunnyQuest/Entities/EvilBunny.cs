@@ -9,9 +9,12 @@ namespace BunnyQuest.Entities
 {
     class EvilBunny : Entity
     {
-        public EvilBunny(int UUID, ContentManager content) : base(UUID)
+        public EvilBunny(uint UUID, ContentManager content) : base(UUID)
         {
-            this.AddComponent(new CmpCollider(this, content.Load<Texture2D>("etc/pixel")) { GetsPushed = true});
+            this.AddComponent(new CmpCollider(this, content.Load<Texture2D>("etc/pixel"))
+            {
+                GetsPushed = true
+            });
 
             this.AddComponent(new CmpStats(this, 10, 3, false));
 

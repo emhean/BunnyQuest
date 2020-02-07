@@ -13,7 +13,7 @@ namespace BunnyQuest.Entities
         public Vector2 speed = new Vector2(2.5f, 2.5f);
         public Vector2 direction = Vector2.Zero;
 
-        public AlphaBunny(int UUID, ContentManager content) : base(UUID)
+        public AlphaBunny(uint UUID, ContentManager content) : base(UUID)
         {
             this.AddComponent(new CmpCollider(this, content.Load<Texture2D>("etc/pixel"))
             {

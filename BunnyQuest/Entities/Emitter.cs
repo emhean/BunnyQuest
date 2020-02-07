@@ -12,7 +12,7 @@ namespace BunnyQuest.Entities
 {
     class Emitter : Entity
     {
-        public Emitter(int UUID) : base(UUID)
+        public Emitter(uint UUID) : base(UUID)
         {
         }
 

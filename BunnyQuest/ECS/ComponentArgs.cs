@@ -1,4 +1,4 @@
-﻿namespace BunnyQuest.ECS.Components
+﻿namespace BunnyQuest.ECS
 {
     /// <summary>
     /// A wrapper for Entity events.

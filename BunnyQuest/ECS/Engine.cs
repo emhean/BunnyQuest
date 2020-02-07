@@ -10,11 +10,11 @@ namespace BunnyQuest.ECS
     #region UUID Stuff
     partial class Engine
     {
-        static int uuid_count;
+        static uint uuid_count;
 
-        static int GetAvailableUUID()
+        static uint GetAvailableUUID()
         {
-            int foo = uuid_count;
+            uint foo = uuid_count;
             uuid_count += 1;
             return foo;
         }
@@ -28,7 +28,7 @@ namespace BunnyQuest.ECS
         /// <summary>
         /// Gets the entity of specified UUID. 
         /// </summary>
-        public Entity GetEntity(int uuid)
+        public Entity GetEntity(uint uuid)
         {
             for (int i = 0; i < entities.Count; ++i)
             {
@@ -90,10 +90,10 @@ namespace BunnyQuest.ECS
         /// <summary>
         /// Adds the entity to the expired list and removes entity from active list.
         /// </summary>
-        public void ExpireEntity(Entity entity)
+        public void MoveEntityToGraveyard(Entity entity)
         {
-            entities_expired.Add(entity);
             entities.Remove(entity);
+            entities_expired.Add(entity);
         }
 
         /// <summary>
@@ -127,32 +127,38 @@ namespace BunnyQuest.ECS
     #region Update Logic
     partial class Engine
     {
+        float t_delta; // Set in first line of code in main Update method.
+
         /// <summary>
         /// The main update loop that runs at 60 times per second.
         /// </summary>
         public void Update(GameTime gameTime)
         {
-            float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            t_delta = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
+            UpdateEntities();
+            UpdateCollision(map);
+            EnemyMovement();
+        }
+
+        public void UpdateEntities()
+        {
             for (int i = 0; i < entities.Count; ++i)
             {
                 for (int j = 0; j < entities[i].components.Count; ++j)
                 {
                     if (entities[i].components[j].IsUpdated)
-                    {
-                        entities[i].components[j].Update(dt);
-                    }
+                        entities[i].components[j].Update(t_delta);
+
+                    if(entities[i].components[j].Expired)
+                        entities[i].RemoveComponent(entities[i].components[j]);
                 }
 
-                if (entities[i].expired)
+                if (entities[i].Expired)
                 {
-                    ExpireEntity(entities[i]);
-                    continue;
+                    MoveEntityToGraveyard(entities[i]);
                 }
             }
-
-            UpdateCollision(map); // TODO: Fix this or implement method somewhere else?
-            EnemyMovement();
         }
 
         public void UpdateCollision(Map2D map)
@@ -245,9 +251,7 @@ namespace BunnyQuest.ECS
                 for (int j = 0; j < entities[i].components.Count; ++j)
                 {
                     if (entities[i].components[j].IsRendered)
-                    {
                         entities[i].components[j].Render(spriteBatch);
-                    }
                 }
             }
         }

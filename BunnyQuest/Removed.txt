@@ -8,3 +8,31 @@
             //    flag_changedBunny_marker = false;
             //    t_changedBunny_marker = 0;
             //}
+
+			        // Not used
+        private void ChangeBunny()
+        {
+            if (player.UUID == 1)
+                this.player = (AlphaBunny)engine.GetEntity(0);
+            else if (player.UUID == 0)
+                this.player = (AlphaBunny)engine.GetEntity(1);
+
+
+            //t_changedBunny_marker = 2;
+            //flag_changedBunny_marker = true;
+
+            for (uint i = 0; i < engine.GetEntityCount(); i++)
+            {
+                if (i == player.UUID)
+                    continue;
+
+                var ent = engine.GetEntity(i);
+
+                if (ent is AlphaBunny p)
+                {
+                    player = p;
+                    //t_changedBunny_marker = 2;
+                    //flag_changedBunny_marker = true;
+                }
+            }
+        }

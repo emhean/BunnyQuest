@@ -12,8 +12,16 @@ namespace BunnyQuest.Entities
         public CmpAI_Follower ai;
         public CmpAnim anim;
 
+        public void StartFighting()
+        {
+            GetComponent<CmpCollider>().GetsPushedBySameType = true;
+        }
+        public void StopFighting()
+        {
+            GetComponent<CmpCollider>().GetsPushedBySameType = false;
+        }
 
-        public BetaBunny(int UUID, ContentManager content) : base(UUID)
+        public BetaBunny(uint UUID, ContentManager content) : base(UUID)
         {
             this.AddComponent(new CmpCollider(this, content.Load<Texture2D>("etc/pixel"))
             {

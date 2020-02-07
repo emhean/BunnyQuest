@@ -21,7 +21,7 @@ namespace BunnyQuest
         KeyboardState keyboardState, prev_keyboardState;
         MouseState mouseState, prev_mouseState;
         Rectangle cursor_rect;
-        Vector2 cursor_pos;
+        Vector2 cursor_pos, cursor_worldPos;
 
         Camera.Camera2DControlled camera;
         int camera_entity;
@@ -90,7 +90,7 @@ namespace BunnyQuest
 
 
 
-            for (int i = 2; i < 10; ++i)
+            for (uint i = 2; i < 10; ++i)
             {
                 var bb = new BetaBunny(i, this.Content)
                 {
@@ -120,36 +120,6 @@ namespace BunnyQuest
         protected override void UnloadContent() { }
 
 
-        // Not used
-        private void ChangeBunny()
-        {
-            if (player.UUID == 1)
-                this.player = (AlphaBunny)engine.GetEntity(0);
-            else if (player.UUID == 0)
-                this.player = (AlphaBunny)engine.GetEntity(1);
-
-
-            //t_changedBunny_marker = 2;
-            //flag_changedBunny_marker = true;
-
-            for (int i = 0; i < engine.GetEntityCount(); i++)
-            {
-                if (i == player.UUID)
-                    continue;
-
-                var ent = engine.GetEntity(i);
-
-                if (ent is AlphaBunny p)
-                {
-                    player = p;
-                    //t_changedBunny_marker = 2;
-                    //flag_changedBunny_marker = true;
-                }
-            }
-        }
-
-
-
         private Entity GetCameraTarget()
         {
             return engine.GetEntityFromIndex(camera_entity);
@@ -176,14 +146,14 @@ namespace BunnyQuest
             UpdateInputs(gameTime);
             UpdateCursorSelection(gameTime);
 
-            if (player.expired)
+            if (player.Expired)
             {
                 // If player controlled alpha bunny is dead we find the next one.... hopefully
                 for (int i = 0; i < engine.GetEntityCount(); ++i)
                 {
                     if (engine.GetEntityFromIndex(i) is AlphaBunny p)
                     {
-                        if (p.expired == false)
+                        if (p.Expired == false)
                         {
                             player = p;
                             break;
@@ -231,7 +201,7 @@ namespace BunnyQuest
             player.pos += (player.speed * player.direction);
 
             Vector2 pos = new Vector2(
-                GetCameraTarget().pos.X + (GraphicsDevice.Viewport.Width) * 0.5f, 
+                GetCameraTarget().pos.X + (GraphicsDevice.Viewport.Width) * 0.5f,
                 GetCameraTarget().pos.Y + (GraphicsDevice.Viewport.Height) * 0.5f);
             camera.Position = pos; //GetCameraTarget().pos + graphics.GraphicsDevice.; //+ GetCameraTarget().size / 2;
 
@@ -261,6 +231,7 @@ namespace BunnyQuest
             cursor_pos.Y = mouseState.Y;
             cursor_rect.X = mouseState.X;
             cursor_rect.Y = mouseState.Y;
+            cursor_worldPos = camera.GetWorldPosition(cursor_pos);
 
             // All the beta bunnies unfollow each other
             if (keyboardState.IsKeyDown(Keys.Tab))
@@ -268,15 +239,30 @@ namespace BunnyQuest
                 player.RemoveAllFollowers();
             }
 
+            if (keyboardState.IsKeyDown(Keys.LeftControl)) //&& prev_keyboardState.IsKeyUp(Keys.LeftControl))
+            {
+                foreach (var bb in player.followers)
+                {
+                    bb.pos += Utils.GetDirection(bb.pos, cursor_worldPos) * 2;
+                }
+            }
+            //else if (keyboardState.IsKeyUp(Keys.LeftControl) && prev_keyboardState.IsKeyDown(Keys.LeftControl))
+            //{
+            //}
+
+
             if (keyboardState.IsKeyDown(Keys.LeftShift))
             {
-                if(mouseState.LeftButton == ButtonState.Released
-                    && prev_mouseState.LeftButton == ButtonState.Pressed)
+                if (player.followers.Count != 0
+                && mouseState.LeftButton == ButtonState.Released
+                && prev_mouseState.LeftButton == ButtonState.Pressed)
                 {
-                    var cursor_worldPos = camera.GetWorldPosition(cursor_pos);
+                    Tile tile = GetCursorTile();
 
+                    // This vector centers the flag to the tiles center position.
+                    Vector2 flag_center = new Vector2(tile.rect.X + tile.rect.Width / 2, tile.rect.Y - tile.rect.Height / 2);
                     splasher.GetComponent<CmpSplashes>().ClearSplashes();
-                    splasher.GetComponent<CmpSplashes>().CreateSplash(cursor_worldPos - Vector2.UnitY * 32);
+                    splasher.GetComponent<CmpSplashes>().CreateSplash(flag_center);
 
                     void RemoveSplash(object o, EntityArgs args)
                     {
@@ -287,7 +273,7 @@ namespace BunnyQuest
                             //    bb.GetComponent<CmpAnim>().currentSpriteCollection = 2;
                             //}
 
-                            player.RemoveFollower(ai.entity, args);
+                            player.RemoveFollower(ai.parent, args);
 
                             splasher.GetComponent<CmpSplashes>().ClearSplashes();
                             ai.DestinationReached -= RemoveSplash;
@@ -299,14 +285,32 @@ namespace BunnyQuest
                     {
                         var list = player.GetFollowersOfFollower(player.followers[0]);
 
-                        player.followers[0].ai.SetDestination(cursor_worldPos);
-                        player.followers[0].ai.DestinationReached += RemoveSplash;
-                        player.RemoveFollower(null, new EntityArgs(player.followers[0], null));
-                        
-                        for(int i = 0; i < list.Count; ++i)
+                        // Destination vector that is the center of the tile for followers to move to
+                        Vector2 dest = new Vector2(tile.rect.X + tile.rect.Width / 2, tile.rect.Y + tile.rect.Height / 2);
+
+                        if (mouseState.RightButton == ButtonState.Pressed)
                         {
-                            player.AddFollower(list[i]);
+                            player.followers[0].ai.SetDestination(dest);
+
+                            var rnd = new Random();
+                            foreach (var f in player.GetFollowersOfFollower(player.followers[0]))
+                            {
+                                f.ai.SetDestination(dest + Vector2.One * rnd.Next(-32, 33));
+                            }
+                            player.followers[0].ai.DestinationReached += RemoveSplash;
                         }
+                        else
+                        {
+                            player.followers[0].ai.SetDestination(dest);
+                            player.followers[0].ai.DestinationReached += RemoveSplash;
+                            player.RemoveFollower(null, new EntityArgs(player.followers[0], null));
+
+                            for (int i = 0; i < list.Count; ++i)
+                            {
+                                player.AddFollower(list[i]);
+                            }
+                        }
+
                     }
                 }
             }
@@ -407,6 +411,17 @@ namespace BunnyQuest
 
 
         /// <summary>
+        /// Gets the Tile that the cursor is on.
+        /// </summary>
+        private Tile GetCursorTile()
+        {
+            map.tileGrid.TranslateToGridIndex((int)cursor_worldPos.X, (int)cursor_worldPos.Y, out int x, out int y);
+            Tile tile = map.tileGrid[y, x];
+            return tile;
+        }
+
+
+        /// <summary>
         /// This is called when the game should draw itself.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
@@ -420,14 +435,16 @@ namespace BunnyQuest
 
             #region Render Tiles
             spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.PointClamp, null, null, null, camera.GetTransformation(this.GraphicsDevice));
+
+            // Render the tiles.
             for (int i = 0; i < map.mapWidth; ++i)
             {
                 for (int j = 0; j < map.mapHeight; ++j)
-                {
-                    var t = map.tileGrid[i, j];
-                    spriteBatch.Draw(map.tileSheet.tex, t.rect, map.tileSheet.sourceRects[t.tileid], Color.White);
-                }
+                    spriteBatch.Draw(map.tileSheet.tex, map.tileGrid[i, j].rect, map.tileSheet.sourceRects[map.tileGrid[i, j].tileid], Color.White);
             }
+
+            // Renders the tile selection area
+            spriteBatch.Draw(tex_pixel, GetCursorTile().rect, Color.AliceBlue * 0.37f);
             #endregion
 
 

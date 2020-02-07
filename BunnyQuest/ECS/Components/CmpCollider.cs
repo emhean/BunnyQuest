@@ -41,10 +41,10 @@ namespace BunnyQuest.ECS.Components
 
         public void UpdateColliderPosition()
         {
-            rect.X = (int)this.entity.pos.X;
-            rect.Y = (int)this.entity.pos.Y;
-            rect.Width = (int)this.entity.size.X;
-            rect.Height = (int)this.entity.size.Y;
+            rect.X = (int)this.parent.pos.X;
+            rect.Y = (int)this.parent.pos.Y;
+            rect.Width = (int)this.parent.size.X;
+            rect.Height = (int)this.parent.size.Y;
 
             rect.X += offset.X;
             rect.Y += offset.Y;
@@ -85,8 +85,8 @@ namespace BunnyQuest.ECS.Components
         /// </summary>
         public void SetPosition(int x, int y)
         {
-            entity.pos.X = x;
-            entity.pos.Y = y;
+            parent.pos.X = x;
+            parent.pos.Y = y;
 
             UpdateColliderPosition();
         }
@@ -96,7 +96,7 @@ namespace BunnyQuest.ECS.Components
         /// </summary>
         public void SetX(int x)
         {
-            entity.pos.X = x;
+            parent.pos.X = x;
             UpdateColliderPosition();
         }
 
@@ -105,7 +105,7 @@ namespace BunnyQuest.ECS.Components
         /// </summary>
         public void SetY(int y)
         {
-            entity.pos.Y = y;
+            parent.pos.Y = y;
             UpdateColliderPosition();
         }
 
@@ -114,8 +114,8 @@ namespace BunnyQuest.ECS.Components
         /// </summary>
         public void SetPosition(float x, float y)
         {
-            entity.pos.X = x;
-            entity.pos.Y = y;
+            parent.pos.X = x;
+            parent.pos.Y = y;
 
             UpdateColliderPosition();
         }
