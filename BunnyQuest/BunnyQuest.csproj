@@ -59,6 +59,8 @@
     <Compile Include="ECS\Components\CmpTrigger.cs" />
     <Compile Include="ECS\Entity.cs" />
     <Compile Include="ECS\Engine.cs" />
+    <Compile Include="ECS\Pawn.cs" />
+    <Compile Include="Entities\Car.cs" />
     <Compile Include="Entities\Emitter.cs" />
     <Compile Include="Entities\EvilBunny.cs" />
     <Compile Include="Entities\BetaBunny.cs" />

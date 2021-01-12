@@ -28,7 +28,9 @@ namespace BunnyQuest
         /// <summary>
         /// A reference to the player entity inside the ECS engine.
         /// </summary>
-        AlphaBunny player;
+        AlphaBunny alphaBunny;
+
+        Car car;
 
         Entity splasher;
 
@@ -75,13 +77,23 @@ namespace BunnyQuest
             tex_background = Content.Load<Texture2D>("etc/jungle");
 
 
-            engine.AddEntity(new AlphaBunny(0, this.Content)
+            // AlphaBunny
+            //engine.AddEntity(new AlphaBunny(0, this.Content)
+            //{
+            //    size = new Vector2(32, 32),
+            //    pos = new Vector2(240, 240)
+            //});
+            //this.alphaBunny = (AlphaBunny)engine.GetEntityFromIndex(0);
+
+
+
+            engine.AddEntity(new Car(0, this.Content)
             {
-                size = new Vector2(32, 32),
+                size = new Vector2(24, 43),
                 pos = new Vector2(240, 240)
             });
+            this.car = (Car)engine.GetEntityFromIndex(0);
 
-            this.player = (AlphaBunny)engine.GetEntityFromIndex(0);
 
 
             this.splasher = new Entity(1);
@@ -89,16 +101,16 @@ namespace BunnyQuest
             engine.AddEntity(splasher);
 
 
-
-            for (uint i = 2; i < 10; ++i)
-            {
-                var bb = new BetaBunny(i, this.Content)
-                {
-                    size = new Vector2(32, 32),
-                    pos = new Vector2(101 + (32 * i), 450)
-                };
-                engine.AddEntity(bb);
-            }
+            // Add some BetaBunnies
+            //for (uint i = 2; i < 10; ++i)
+            //{
+            //    var bb = new BetaBunny(i, this.Content)
+            //    {
+            //        size = new Vector2(32, 32),
+            //        pos = new Vector2(101 + (32 * i), 450)
+            //    };
+            //    engine.AddEntity(bb);
+            //}
 
 
             //var enemy = new Entities.EvilBunny(11, this.Content)
@@ -146,60 +158,70 @@ namespace BunnyQuest
             UpdateInputs(gameTime);
             UpdateCursorSelection(gameTime);
 
-            if (player.Expired)
+
+            // AlphaBunny Update logic
+            if(alphaBunny != null)
             {
-                // If player controlled alpha bunny is dead we find the next one.... hopefully
-                for (int i = 0; i < engine.GetEntityCount(); ++i)
+                if (alphaBunny.Expired)
                 {
-                    if (engine.GetEntityFromIndex(i) is AlphaBunny p)
+                    // If player controlled alpha bunny is dead we find the next one.... hopefully
+                    for (int i = 0; i < engine.GetEntityCount(); ++i)
                     {
-                        if (p.Expired == false)
+                        if (engine.GetEntityFromIndex(i) is AlphaBunny p)
                         {
-                            player = p;
-                            break;
+                            if (p.Expired == false)
+                            {
+                                alphaBunny = p;
+                                break;
+                            }
                         }
                     }
                 }
+
+
+                #region Rotation to player direction stuff
+
+                // Rotate player
+                Utils.SetAnimBasedOfDirection(alphaBunny.GetComponent<CmpAnim>(), alphaBunny.direction);
+
+                // Rotate follower bunnies
+                for (int i = 2; i < 100; ++i)
+                {
+                    if (engine.HasEntityOfIndex(i) == false || engine.HasEntityOfIndex(i + 1) == false)
+                        break;
+
+                    BetaBunny bb = (BetaBunny)engine.GetEntityFromIndex(i);
+
+                    Vector2 dir = Vector2.Zero; // We set this in the if statements below. its the direction that sprite will be flipped to.
+                    if (bb.ai.destination_set)
+                    {
+                        dir = bb.ai.destination;
+                        //bb.anim.renderColor = Color.LightGray;
+                    }
+                    else if (bb.ai.State == CmpAI_Follower.STATE_CmpAI_Follower.Following)
+                    {
+                        dir = bb.ai.entity_toFollow.GetCenterPosition();
+                        //bb.anim.renderColor = Color.LightGray;
+                    }
+                    else
+                    {
+                        //bb.anim.renderColor = Color.Gray;
+                        continue;
+                    }
+
+                    Utils.SetAnimBasedOfDirection(bb.anim, Utils.GetDirection(bb.GetCenterPosition(), dir));
+                }
+                #endregion
+
+
+                alphaBunny.pos += (alphaBunny.speed * alphaBunny.direction);
             }
 
 
-            #region Rotation to player direction stuff
-
-            // Rotate player
-            Utils.SetAnimBasedOfDirection(player.GetComponent<CmpAnim>(), player.direction);
-
-            // Rotate follower bunnies
-            for (int i = 2; i < 100; ++i)
-            {
-                if (engine.HasEntityOfIndex(i) == false || engine.HasEntityOfIndex(i + 1) == false)
-                    break;
-
-                BetaBunny bb = (BetaBunny)engine.GetEntityFromIndex(i);
-
-                Vector2 dir = Vector2.Zero; // We set this in the if statements below. its the direction that sprite will be flipped to.
-                if (bb.ai.destination_set)
-                {
-                    dir = bb.ai.destination;
-                    //bb.anim.renderColor = Color.LightGray;
-                }
-                else if (bb.ai.State == CmpAI_Follower.STATE_CmpAI_Follower.Following)
-                {
-                    dir = bb.ai.entity_toFollow.GetCenterPosition();
-                    //bb.anim.renderColor = Color.LightGray;
-                }
-                else
-                {
-                    //bb.anim.renderColor = Color.Gray;
-                    continue;
-                }
-
-                Utils.SetAnimBasedOfDirection(bb.anim, Utils.GetDirection(bb.GetCenterPosition(), dir));
-            }
-            #endregion
 
 
-            player.pos += (player.speed * player.direction);
 
+            // Camera target
             Vector2 pos = new Vector2(
                 GetCameraTarget().pos.X + (GraphicsDevice.Viewport.Width) * 0.5f,
                 GetCameraTarget().pos.Y + (GraphicsDevice.Viewport.Height) * 0.5f);
@@ -219,6 +241,8 @@ namespace BunnyQuest
         /// </summary>
         private void UpdateInputs(GameTime gameTime)
         {
+            float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
             // Get state of keyboard (pressed buttons etc)
             keyboardState = Keyboard.GetState();
 
@@ -233,124 +257,197 @@ namespace BunnyQuest
             cursor_rect.Y = mouseState.Y;
             cursor_worldPos = camera.GetWorldPosition(cursor_pos);
 
-            // All the beta bunnies unfollow each other
-            if (keyboardState.IsKeyDown(Keys.Tab))
+            // AlphaBunny Control Logic
+            if(alphaBunny != null)
             {
-                player.RemoveAllFollowers();
-            }
-
-            if (keyboardState.IsKeyDown(Keys.LeftControl)) //&& prev_keyboardState.IsKeyUp(Keys.LeftControl))
-            {
-                foreach (var bb in player.followers)
+                // All the beta bunnies unfollow each other
+                if (keyboardState.IsKeyDown(Keys.Tab))
                 {
-                    bb.pos += Utils.GetDirection(bb.pos, cursor_worldPos) * 2;
+                    alphaBunny.RemoveAllFollowers();
                 }
-            }
-            //else if (keyboardState.IsKeyUp(Keys.LeftControl) && prev_keyboardState.IsKeyDown(Keys.LeftControl))
-            //{
-            //}
 
-
-            if (keyboardState.IsKeyDown(Keys.LeftShift))
-            {
-                if (player.followers.Count != 0
-                && mouseState.LeftButton == ButtonState.Released
-                && prev_mouseState.LeftButton == ButtonState.Pressed)
+                if (keyboardState.IsKeyDown(Keys.LeftControl)) //&& prev_keyboardState.IsKeyUp(Keys.LeftControl))
                 {
-                    Tile tile = GetCursorTile();
-
-                    // This vector centers the flag to the tiles center position.
-                    Vector2 flag_center = new Vector2(tile.rect.X + tile.rect.Width / 2, tile.rect.Y - tile.rect.Height / 2);
-                    splasher.GetComponent<CmpSplashes>().ClearSplashes();
-                    splasher.GetComponent<CmpSplashes>().CreateSplash(flag_center);
-
-                    void RemoveSplash(object o, EntityArgs args)
+                    foreach (var bb in alphaBunny.followers)
                     {
-                        if (o is CmpAI_Follower ai)
-                        {
-                            //foreach(var bb in player.GetFollowersOfFollower( (BetaBunny)args.Entity))
-                            //{
-                            //    bb.GetComponent<CmpAnim>().currentSpriteCollection = 2;
-                            //}
-
-                            player.RemoveFollower(ai.parent, args);
-
-                            splasher.GetComponent<CmpSplashes>().ClearSplashes();
-                            ai.DestinationReached -= RemoveSplash;
-                        }
-                    };
-
-                    // Send all bunnies to clicked position
-                    if (player.followers.Count != 0)
-                    {
-                        var list = player.GetFollowersOfFollower(player.followers[0]);
-
-                        // Destination vector that is the center of the tile for followers to move to
-                        Vector2 dest = new Vector2(tile.rect.X + tile.rect.Width / 2, tile.rect.Y + tile.rect.Height / 2);
-
-                        if (mouseState.RightButton == ButtonState.Pressed)
-                        {
-                            player.followers[0].ai.SetDestination(dest);
-
-                            var rnd = new Random();
-                            foreach (var f in player.GetFollowersOfFollower(player.followers[0]))
-                            {
-                                f.ai.SetDestination(dest + Vector2.One * rnd.Next(-32, 33));
-                            }
-                            player.followers[0].ai.DestinationReached += RemoveSplash;
-                        }
-                        else
-                        {
-                            player.followers[0].ai.SetDestination(dest);
-                            player.followers[0].ai.DestinationReached += RemoveSplash;
-                            player.RemoveFollower(null, new EntityArgs(player.followers[0], null));
-
-                            for (int i = 0; i < list.Count; ++i)
-                            {
-                                player.AddFollower(list[i]);
-                            }
-                        }
-
+                        bb.pos += Utils.GetDirection(bb.pos, cursor_worldPos) * 2;
                     }
                 }
-            }
+                //else if (keyboardState.IsKeyUp(Keys.LeftControl) && prev_keyboardState.IsKeyDown(Keys.LeftControl))
+                //{
+                //}
 
 
 
-            #region Keyboard movement stuff
-            if (keyboardState.IsKeyDown(Keys.W)) // Up
-            {
-                player.direction.X = 0;
-                player.direction.Y = -1;
-            }
-            else if (keyboardState.IsKeyDown(Keys.S)) // Down
-            {
-                player.direction.X = 0;
-                player.direction.Y = 1;
-            }
-            else if (keyboardState.IsKeyDown(Keys.A)) // Left
-            {
-                player.direction.X = -1;
-                player.direction.Y = 0;
-            }
-            else if (keyboardState.IsKeyDown(Keys.D)) // Right
-            {
-                player.direction.X = 1;
-                player.direction.Y = 0;
-            }
-            else
-            {
-                player.direction.X = 0;
-                player.direction.Y = 0;
-            }
+
+                if (keyboardState.IsKeyDown(Keys.LeftShift))
+                {
+                    if (alphaBunny.followers.Count != 0
+                    && mouseState.LeftButton == ButtonState.Released
+                    && prev_mouseState.LeftButton == ButtonState.Pressed)
+                    {
+                        Tile tile = GetCursorTile();
+
+                        // This vector centers the flag to the tiles center position.
+                        Vector2 flag_center = new Vector2(tile.rect.X + tile.rect.Width / 2, tile.rect.Y - tile.rect.Height / 2);
+                        splasher.GetComponent<CmpSplashes>().ClearSplashes();
+                        splasher.GetComponent<CmpSplashes>().CreateSplash(flag_center);
+
+                        void RemoveSplash(object o, EntityArgs args)
+                        {
+                            if (o is CmpAI_Follower ai)
+                            {
+                                //foreach(var bb in player.GetFollowersOfFollower( (BetaBunny)args.Entity))
+                                //{
+                                //    bb.GetComponent<CmpAnim>().currentSpriteCollection = 2;
+                                //}
+
+                                alphaBunny.RemoveFollower(ai.parent, args);
+
+                                splasher.GetComponent<CmpSplashes>().ClearSplashes();
+                                ai.DestinationReached -= RemoveSplash;
+                            }
+                        };
+
+                        // Send all bunnies to clicked position
+                        if (alphaBunny.followers.Count != 0)
+                        {
+                            var list = alphaBunny.GetFollowersOfFollower(alphaBunny.followers[0]);
+
+                            // Destination vector that is the center of the tile for followers to move to
+                            Vector2 dest = new Vector2(tile.rect.X + tile.rect.Width / 2, tile.rect.Y + tile.rect.Height / 2);
+
+                            if (mouseState.RightButton == ButtonState.Pressed)
+                            {
+                                alphaBunny.followers[0].ai.SetDestination(dest);
+
+                                var rnd = new Random();
+                                foreach (var f in alphaBunny.GetFollowersOfFollower(alphaBunny.followers[0]))
+                                {
+                                    f.ai.SetDestination(dest + Vector2.One * rnd.Next(-32, 33));
+                                }
+                                alphaBunny.followers[0].ai.DestinationReached += RemoveSplash;
+                            }
+                            else
+                            {
+                                alphaBunny.followers[0].ai.SetDestination(dest);
+                                alphaBunny.followers[0].ai.DestinationReached += RemoveSplash;
+                                alphaBunny.RemoveFollower(null, new EntityArgs(alphaBunny.followers[0], null));
+
+                                for (int i = 0; i < list.Count; ++i)
+                                {
+                                    alphaBunny.AddFollower(list[i]);
+                                }
+                            }
+
+                        }
+                    }
+                }
 
 
-            if (player.direction == Vector2.Zero)
-            {
-                player.GetComponent<CmpAnim>().IsUpdated = false;
-            }
-            else player.GetComponent<CmpAnim>().IsUpdated = true;
+
+                #region Keyboard and movement for AlphaBunny
+                    if (keyboardState.IsKeyDown(Keys.W)) // Up
+                    {
+                        alphaBunny.direction.X = 0;
+                        alphaBunny.direction.Y = -1;
+                    }
+                    else if (keyboardState.IsKeyDown(Keys.S)) // Down
+                    {
+                        alphaBunny.direction.X = 0;
+                        alphaBunny.direction.Y = 1;
+                    }
+                    else if (keyboardState.IsKeyDown(Keys.A)) // Left
+                    {
+                        alphaBunny.direction.X = -1;
+                        alphaBunny.direction.Y = 0;
+                    }
+                    else if (keyboardState.IsKeyDown(Keys.D)) // Right
+                    {
+                        alphaBunny.direction.X = 1;
+                        alphaBunny.direction.Y = 0;
+                    }
+                    else
+                    {
+                        alphaBunny.direction.X = 0;
+                        alphaBunny.direction.Y = 0;
+                    }
+
+
+                    if (alphaBunny.direction == Vector2.Zero)
+                    {
+                        alphaBunny.GetComponent<CmpAnim>().IsUpdated = false;
+                    }
+                    else alphaBunny.GetComponent<CmpAnim>().IsUpdated = true;
+                }
             #endregion
+
+
+
+
+            // Update logic for Car is here in UpdateInputs because its all we care about for now
+            if(car != null)
+            {
+                var anim = car.GetComponent<CmpAnim>();
+                anim.origin = new Vector2(12, 12);
+
+                Console.WriteLine();
+                Console.WriteLine("car.direction:" + car.direction);
+                Console.WriteLine("anim.rotation: " + anim.rotation);
+                Console.WriteLine("car.rotation_angle:" + car.rotation_angle);
+
+                // RotationAngle is set using a value in degrees (the float f).
+                //car.rotation_angle = MathHelper.ToRadians(anim.rotation);
+
+                car.rotation_angle = MathHelper.ToRadians( 
+                    MathHelper.ToDegrees(anim.rotation) - 90
+                    );
+
+
+                car.direction = new Vector2((float)Math.Cos(car.rotation_angle),
+                                (float)Math.Sin(car.rotation_angle));
+
+                car.direction.Normalize();
+
+                // Move forward
+                car.pos += car.speed * car.direction;
+
+                // Gas
+                if (keyboardState.IsKeyDown(Keys.Space))
+                {
+                    if(car.speed <= 3)
+                    {
+                        car.speed += dt;
+                    }
+                }
+                else
+                {
+                    if(car.speed > 0)
+                    {
+                        car.speed -= dt * 2;
+
+                        if(car.speed < 0)
+                        {
+                            car.speed = (int)0;
+                        }
+                    }
+                }
+
+                if (keyboardState.IsKeyDown(Keys.A)) // Left
+                {
+                    anim.rotation -= dt * car.speed;
+                    //car.rotation_angle -= dt * 90;
+                }
+                else if (keyboardState.IsKeyDown(Keys.D)) // Right
+                {
+                    anim.rotation += dt * car.speed;
+                    //car.rotation_angle += dt * 90;
+                }
+                else
+                {
+                }
+            }
+
 
             // Set previous values to values of this frame
             prev_keyboardState = keyboardState;
@@ -400,7 +497,7 @@ namespace BunnyQuest
                         if (e is BetaBunny bb) // Cast entity if it's a BetaBunny. Otherwise tree's and shit will follow us.
                         {
                             if (bb.ai.State != CmpAI_Follower.STATE_CmpAI_Follower.Following)
-                                player.AddFollower(bb); //bb.Follow(player);
+                                alphaBunny.AddFollower(bb); //bb.Follow(player);
                         }
                     }
 
@@ -461,14 +558,20 @@ namespace BunnyQuest
 
             cursorSelection.Render(spriteBatch);
 
-            // Render logic for the player healthbar (the carrots at top left)
-            var stats = player.GetComponent<CmpStats>();
-            // Render the black carrots that is relative to actual max health but subtraced by current health
-            for (int i = stats.health_cap; i > stats.health; --i)
-                spriteBatch.Draw(tex_carrot, new Vector2((24 * i), 25), Color.Black);
-            // Render the carrots that is relative to current health
-            for (int i = 0; i < stats.GetHealth(); ++i)
-                spriteBatch.Draw(tex_carrot, new Vector2(25 + (24 * i), 25), Color.White);
+
+            // AlphaBunny Render logic
+            if(alphaBunny != null)
+            {
+                // Render logic for the player healthbar (the carrots at top left)
+                var stats = alphaBunny.GetComponent<CmpStats>();
+                // Render the black carrots that is relative to actual max health but subtraced by current health
+                for (int i = stats.health_cap; i > stats.health; --i)
+                    spriteBatch.Draw(tex_carrot, new Vector2((24 * i), 25), Color.Black);
+                // Render the carrots that is relative to current health
+                for (int i = 0; i < stats.GetHealth(); ++i)
+                    spriteBatch.Draw(tex_carrot, new Vector2(25 + (24 * i), 25), Color.White);
+            }
+
 
             spriteBatch.End();
             #endregion

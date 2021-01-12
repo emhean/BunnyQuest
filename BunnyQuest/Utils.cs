@@ -41,6 +41,9 @@ namespace BunnyQuest
             return Rectangle.Intersect(ent_rect, screen_rect);
         }
 
+        /// <summary>
+        /// Some magic that only works for bunnies
+        /// </summary>
         static public void SetAnimBasedOfDirection(CmpAnim anim, Vector2 direction)
         {
             // We check which absolute value that is bigger to determine which axis to prioritize

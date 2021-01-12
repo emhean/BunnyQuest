@@ -8,6 +8,8 @@ namespace BunnyQuest.ECS.Components
         public Rectangle rect;
         public Rectangle offset;
 
+        //public bool size_relativeToParent = true;
+
         /// <summary>
         /// A filter of types that is irrelevant to this collider.
         /// </summary>
@@ -43,8 +45,10 @@ namespace BunnyQuest.ECS.Components
         {
             rect.X = (int)this.parent.pos.X;
             rect.Y = (int)this.parent.pos.Y;
+
             rect.Width = (int)this.parent.size.X;
             rect.Height = (int)this.parent.size.Y;
+
 
             rect.X += offset.X;
             rect.Y += offset.Y;
